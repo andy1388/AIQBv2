@@ -37,6 +37,5 @@ app.get('*', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-
-    console.log(`本地訪問：http://localhost:${port}`);
+    console.log(`Server URL: ${process.env.RENDER_EXTERNAL_URL || `http://localhost:${port}`}`);
 }); 
