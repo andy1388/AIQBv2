@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>練習 - AI_QB</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/practice.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">AI_QB</a>
+            <div class="nav-links">
+                <a href="/practice.html" class="active">練習</a>
+                <a href="/solver.html">求解器</a>
+                <button id="muteButton" class="mute-button">
+                    <span class="mute-icon">🔊</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="practice-layout">
+        <div class="sidebar">
+            <div class="topic-nav">
+                <!-- 这里会被 JavaScript 填充目录结构 -->
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="question-area">
+                <div class="difficulty-selector">
+                    <span class="difficulty-label">難度：</span>
+                    <div class="difficulty-buttons">
+                        <button class="difficulty-btn active" data-level="1">1</button>
+                        <button class="difficulty-btn" data-level="2">2</button>
+                        <button class="difficulty-btn" data-level="3">3</button>
+                        <button class="difficulty-btn" data-level="4">4</button>
+                        <button class="difficulty-btn" data-level="5">5</button>
+                    </div>
+                </div>
+                <div class="placeholder-message">
+                    請從左側選擇練習題目
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加音频元素 -->
+    <audio id="correctSound" preload="auto">
+        <source src="/sounds/correct.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="wrongSound" preload="auto">
+        <source src="/sounds/wrong.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 加载 MathJax -->
+    <script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            packages: ['base', 'ams', 'noerrors', 'noundefined']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- 加载应用脚本 -->
+    <script src="/js/practice.js"></script>
+</body>
+</html> 

@@ -1,0 +1,413 @@
+/* 基本布局 */
+.solver-layout {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    margin-top: 60px;
+    min-height: calc(100vh - 100px); /* 确保最小高度填满视窗 */
+}
+
+/* 左側生成器區域 */
+.generator-section {
+    width: 400px;  /* 固定左側寬度 */
+    flex-shrink: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 140px); /* 调整最小高度 */
+}
+
+/* 生成記錄區域 */
+.generation-history {
+    flex: 1;
+    margin-top: 20px;
+    overflow-y: auto;
+}
+
+#history-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#history-list li {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 生成按鈕樣式 */
+#generate-btn {
+    width: 100%;
+    padding: 12px;
+    background: #33ccff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#generate-btn:hover {
+    background: #00bfff;
+}
+
+/* 求解按鈕樣式 */
+#solve-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    background: #33ccff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#solve-btn:hover {
+    background: #00bfff;
+}
+
+#solve-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* 右側區域 */
+.right-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: calc(100vh - 140px);
+}
+
+/* 求解器區域樣式 */
+.solver-section {
+    flex: 1;  /* 改为 1，减少高度占比 */
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    min-height: 300px;  /* 设置最小高度 */
+}
+
+/* 輸入區域樣式 */
+.equation-input {
+    display: flex;
+    gap: 10px;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+#equation-input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 18px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+#equation-input:focus {
+    border-color: #33ccff;
+    outline: none;
+}
+
+/* 實驗區樣式 */
+.experiment-section {
+    flex: 2;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 添加间距 */
+}
+
+/* 實驗區內容區域 */
+.experiment-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column; /* 改为纵向布局 */
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    min-height: 120px;
+    max-height: 400px; /* 设置最大高度 */
+    overflow-y: auto; /* 添加垂直滚动 */
+}
+
+.generated-content {
+    font-size: 24px;
+    text-align: center;
+    width: 100%;
+}
+
+/* 表達式狀態區域 */
+.expression-status {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.expression-status h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.status-label {
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.status-value {
+    font-weight: 500;
+    color: #333;
+}
+
+/* 操作按鈕區域 - 固定在實驗區底部 */
+.operation-buttons {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-top: 1px solid #eee;
+    border-radius: 0 0 8px 8px;
+}
+
+.op-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 16px;
+    background: #33ccff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    text-align: center;
+}
+
+.op-btn:hover {
+    background: #00bfff;
+    transform: translateY(-1px);
+}
+
+.op-btn:active {
+    transform: translateY(0);
+}
+
+.op-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 難度標籤樣式 */
+.difficulty-label {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    margin-left: auto;
+}
+
+.level-1 { background-color: #4CAF50; }  /* 基礎 - 綠色 */
+.level-2 { background-color: #2196F3; }  /* 初級 - 藍色 */
+.level-3 { background-color: #FF9800; }  /* 中級 - 橙色 */
+.level-4 { background-color: #9C27B0; }  /* 進階 - 紫色 */
+.level-5 { background-color: #F44336; }  /* 挑戰 - 紅色 */
+
+/* 選擇器樣式 */
+select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+select:focus {
+    border-color: #33ccff;
+    outline: none;
+}
+
+/* 選項樣式 */
+option {
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* 選項組樣式 */
+optgroup {
+    font-weight: bold;
+    color: #666;
+}
+
+/* 添加選項的提示樣式 */
+option[value="1"] { color: #4CAF50; }  /* 基礎 - 綠色 */
+option[value="2"] { color: #2196F3; }  /* 初級 - 藍色 */
+option[value="3"] { color: #FF9800; }  /* 中級 - 橙色 */
+option[value="4"] { color: #9C27B0; }  /* 進階 - 紫色 */
+option[value="5"] { color: #F44336; }  /* 挑戰 - 紅色 */
+
+/* 懸停效果 */
+select:hover {
+    border-color: #33ccff;
+}
+
+/* 當選擇器被展開時的樣式 */
+select:focus option {
+    background-color: #f5f5f5;
+}
+
+/* 選中選項的樣式 */
+select option:checked {
+    background-color: #e3f2fd;
+    font-weight: bold;
+}
+
+/* 難度信息提示框 */
+.difficulty-info {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    align-items: center;
+}
+
+.info-icon {
+    margin-right: 5px;
+    color: #33ccff;
+    font-style: normal;
+}
+
+.info-text {
+    font-style: italic;
+}
+
+/* 懸停時顯示完整說明 */
+.difficulty-info:hover .info-text {
+    text-decoration: underline;
+    cursor: help;
+}
+
+/* 数学公式容器 */
+.fraction-container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.fraction-container .MathJax {
+    margin: 0 !important;
+}
+
+/* 表达式历史记录区域 */
+.expression-history {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    min-height: 100px;
+}
+
+/* 表达式步骤样式 */
+.expression-step {
+    background: white;
+    padding: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.expression-step .operation-label {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* 步骤之间的箭头 */
+.expression-step:not(:last-child)::after {
+    content: "↓";
+    color: #999;
+    text-align: center;
+    margin: 0.5rem 0;
+    display: block;
+    font-size: 1.2em;
+}
+
+/* 滚动条样式 */
+.experiment-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.experiment-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.experiment-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.experiment-content::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.op-btn[data-op="calculate"],
+.op-btn[data-op="number-calculate"] {
+    background-color: #33ccff;
+}
+
+.op-btn[data-op="calculate"]:hover,
+.op-btn[data-op="number-calculate"]:hover {
+    background-color: #00bfff;
+}
+
+.op-btn[data-op="calculate"]:disabled,
+.op-btn[data-op="number-calculate"]:disabled {
+    background-color: #ccc;
+} 

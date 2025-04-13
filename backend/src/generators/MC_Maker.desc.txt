@@ -1,0 +1,39 @@
+Generator ID: MC_Maker
+Description: 多选题生成器
+
+功能概述：
+这是一个用于生成标准化多选题的工具。它可以：
+1. 接收问题内容、正确答案和错误答案
+2. 自动打乱选项顺序
+3. 支持两种选项生成模式：
+   - 标准模式：合并并打乱正确答案和错误答案
+   - 预设模式：使用预定义的选项顺序（通过optionContents）
+
+输入格式 (IGeneratorOutput):
+{
+    content: string;          // 问题内容
+    correctAnswer: string;    // 正确答案
+    wrongAnswers: string[];   // 错误答案数组
+    explanation: string;      // 解释说明
+    optionContents?: string[]; // 可选：预设的选项内容
+}
+
+输出格式 (IQuestion):
+{
+    content: string;          // 问题内容
+    options: string[];        // 所有选项（已打乱顺序）
+    correctIndex: number;     // 正确答案的索引
+    correctAnswer: string;    // 正确答案内容
+    explanation: string;      // 解释说明
+}
+
+使用说明：
+1. 难度等级范围：1-5
+2. 必须提供wrongAnswers数组
+3. 如果提供optionContents，将使用预设顺序而不是随机打乱
+4. 支持泛型数组打乱功能
+
+注意事项：
+- 确保wrongAnswers数组不为空
+- 使用optionContents时需要确保correctAnswer在其中
+- 建议错误选项数量保持一致（通常为3个） 

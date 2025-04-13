@@ -1,0 +1,124 @@
+[F1L0] Basic Mathematics
+  [F1L0.1] Revision on Fundamental Arithmetic
+    [F1L0.1.1] Arithmetic Operations
+    [F1L0.1.2] L.C.M. and H.C.F.
+    [F1L0.1.3] Fractions and Decimals
+  [F1L0.2] Divisibility and Classification of Numbers
+    [F1L0.2.1] Index Notation
+    [F1L0.2.2] Short Division
+    [F1L0.2.3] Tests of Divisibility
+    [F1L0.2.4] Classification of Numbers
+
+[F1L1] Directed Number
+  [F1L1.1] Operation
+    [F1L1.1.1] Concept
+    [F1L1.1.2] Addition and Subtraction
+    [F1L1.1.3] Multiplication and Division
+    [F1L1.1.4] Mixed Operations
+  [F1L1.2] Application
+    [F1L1.2.1] Number Line
+    [F1L1.2.2] Increase and Decrease
+    [F1L1.2.3] Change
+
+[F1L2] Introduction to Algebra
+  [F1L2.1] Algebraic Language
+  [F1L2.2] Algebraic Expressions
+  [F1L2.3] Formula and Method of Substitution
+  [F1L2.4] Sequence
+
+[F1L3] Linear Equations in One Unknown
+  [F1L3.1] Equation without Fraction
+  [F1L3.3] Equation with Fraction
+  [F1L3.4] Application
+    [F1L3.4.1] Algebraic Language
+    [F1L3.4.2] Total or Difference
+    [F1L3.4.3] Age
+    [F1L3.4.4] Distribution
+    [F1L3.4.5] Speed
+    [F1L3.4.6] Money
+    [F1L3.4.7] Mixture Problems
+    [F1L3.4.8] Plane Figures
+    [F1L3.4.9] Two-digit Number
+    [F1L3.4.10] Miscellaneous
+
+[F1L4] Percentage (I)
+  [F1L4.1] Percentage Change
+    [F1L4.1.1] Basic
+    [F1L4.1.2] Part and Whole
+    [F1L4.1.3] Percentage Increase
+    [F1L4.1.4] Percentage Decrease
+  [F1L4.2] Profit, Loss and Discount
+    [F1L4.2.1] Profit or Loss
+    [F1L4.2.2] Discount
+    [F1L4.2.3] Miscellaneous
+
+[F1L5] Approximate Values, Numerical Estimation and Significant Figures
+  [F1L5.1] Approximate Values and Numerical Estimation
+    [F1L5.1.1] Rounding (Round up down and off)
+    [F1L5.1.2] Clustering
+    [F1L5.1.3] Front End
+  [F1L5.2] Significant Figures
+
+[F1L6] Introduction to Geometry
+  [F1L6.1] Angles
+    [F1L6.1.1] Basic Concepts
+    [F1L6.1.2] Angles
+  [F1L6.2] Triangles and Polygons
+    [F1L6.2.1] Triangles
+    [F1L6.2.2] Classification of Polygons
+  [F1L6.3] Basic Constructions
+  [F1L6.4] 3D Figures
+    [F1L6.4.1] 3D Figures
+    [F1L6.4.2] Cross-Section
+    [F1L6.4.3] 2D Drawings
+
+[F1L8] Area and Volume (I)
+  [F1L8.1] Area of Plane Figures
+  [F1L8.2] Total Surface Area
+  [F1L8.3] Volume
+  [F1L8.4] Application
+    [F1L8.4.1] Recast
+    [F1L8.4.2] Painting
+    [F1L8.4.3] Overflow
+    [F1L8.4.4] Miscellaneous
+
+[F1L9] Congruence and Similarity
+  [F1L9.1] Congruence
+    [F1L9.1.1] Uses
+    [F1L9.1.2] Conditions
+  [F1L9.2] Similarity
+    [F1L9.2.1] Uses
+    [F1L9.2.2] Conditions
+  [F1L9.3] Miscellaneous
+
+[F1L10] Introduction to Coordinates
+  [F1L10.1] Rectangular Coordinate System
+  [F1L10.2] Distance between Two Points
+  [F1L10.3] Areas of Plane Figures
+  [F1L10.4] Transformations of Points on the Coordinate Plane
+  [F1L10.5] Polar Coordinates
+
+[F1L11] Angles Related to Lines
+  [F1L11.1] Angles related to Intersecting Lines
+  [F1L11.2] Angles related to Parallel Lines
+  [F1L11.3] Identifying Parallel Lines
+
+[F1L12] Manipulation of Simple Polynomials
+  [F1L12.1] Law of Positive Integral Indices
+  [F1L12.2] Manipulation of Simple Polynomials
+    [F1L12.2.1] Terms related to
+    [F1L12.2.2] Addition and Subtraction
+    [F1L12.2.3] Multiplication
+
+[F1L13] Introduction to Statistics and Statistical Charts
+  [F1L13.1] Classification of Data and Frequency Table
+    [F1L13.1.1] Classification of Data
+    [F1L13.1.2] Frequency Table
+  [F1L13.2] Bar Chart and Broken Line Graph
+    [F1L13.2.1] Bar Chart
+    [F1L13.2.2] Broken Line Graph
+  [F1L13.3] Combination Chart and Pie Chart
+    [F1L13.3.1] Combination Chart
+    [F1L13.3.2] Pie Chart
+  [F1L13.4] Stem-and-Leaf Diagram
+  [F1L13.5] Scatter Plot 

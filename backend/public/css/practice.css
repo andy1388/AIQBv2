@@ -1,0 +1,871 @@
+/* 練習頁面布局 */
+.practice-layout {
+    display: flex;
+    min-height: calc(100vh - 60px);
+    margin-top: 60px;
+    position: relative;
+}
+
+/* 左側導航欄 */
+.sidebar {
+    width: 300px;
+    min-width: 200px;
+    max-width: 600px;
+    height: calc(100vh - 60px);
+    background-color: #f8f9fa;
+    border-right: 1px solid #33ccff;
+    overflow-y: auto;
+    position: fixed;
+    left: 0;
+    top: 60px;
+    transition: width 0.3s ease;
+    z-index: 100;
+}
+
+/* 移除搜索框的樣式 */
+.search-box {
+    display: none; /* 暫時隱藏搜索框 */
+}
+
+.topic-nav {
+    padding: 15px;
+}
+
+.directory {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.directory-item {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.directory-name {
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    color: white;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    margin: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.directory-content {
+    display: none;
+    margin: 0;
+    padding-left: 1.5rem;
+    width: calc(100% - 1.5rem);
+    background: rgba(0,0,0,0.1);
+}
+
+.directory-content.expanded {
+    display: block;
+}
+
+.generator-item {
+    cursor: pointer;
+    padding: 8px 12px;
+    transition: background-color 0.2s;
+}
+
+.generator-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.generator-item.active {
+    background-color: rgba(51, 204, 255, 0.2);
+    border-left: 3px solid #33ccff;
+}
+
+/* 添加左側垂直線 */
+.directory-content {
+    border-left: 1px solid rgba(255,255,255,0.1);
+    margin-left: 1rem;
+}
+
+/* 章節樣式 */
+.chapter-section {
+    margin: 0;
+    padding: 0;
+}
+
+.chapter-title {
+    padding: 0.5rem 1rem;
+    margin: 0;
+}
+
+.section-title {
+    padding: 0.75rem 1rem;
+    background: #2c3e50;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.topic-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.topic-link:not(.has-generator) {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.topic-link.has-generator:hover {
+    background: #34495e;
+}
+
+.topic-link.active {
+    background: #34495e;
+    color: white;
+}
+
+/* 主要內容區 */
+.practice-content {
+    margin-left: 300px;
+    flex: 1;
+    padding: 2rem;
+    background: #fff;
+    min-height: calc(100vh - 60px);
+}
+
+.content-header {
+    margin-bottom: 2rem;
+}
+
+/* 難度選擇器 */
+.difficulty-selector {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.difficulty-label {
+    color: #333;
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+.difficulty-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.difficulty-btn {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #33ccff;
+    border-radius: 50%;
+    background: white;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.difficulty-btn:hover {
+    transform: scale(1.1);
+    border-color: #33ccff;
+    background: rgba(51, 204, 255, 0.1);
+}
+
+.difficulty-btn.active {
+    background: #33ccff;
+    color: white;
+    border-color: #33ccff;
+}
+
+/* 問題區域的調整 */
+.question-area {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.placeholder-message {
+    text-align: center;
+    color: #6c757d;
+    font-size: 1.2rem;
+    margin: auto;
+    padding: 2rem;
+}
+
+/* 響應式設計 */
+@media (max-width: 1200px) {
+    .options {
+        gap: 1rem;
+    }
+    
+    .option {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .practice-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+
+    .question-area {
+        max-height: calc(100vh - 400px);
+    }
+
+    .options {
+        grid-template-columns: 1fr;
+    }
+
+    .option {
+        min-height: 50px;
+    }
+}
+
+.question-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 30px;
+    padding: 20px 0;
+}
+
+/* LaTeX 公式样式调整 */
+.question-content .MathJax {
+    font-size: 130% !important;
+}
+
+/* 题目标题样式 */
+.question-title {
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* 選項區域的調整 */
+.options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    position: relative;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 60px;
+    background: white;
+}
+
+/* 修改答案图标的基础样式 */
+.option::after {
+    content: '';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* 正确答案的绿色对勾 */
+.option.correct.selected::after {
+    content: '✓';
+    opacity: 1;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+/* 错误答案的红色叉号 */
+.option.wrong.selected::after {
+    content: '✕';
+    opacity: 1;
+    color: #f44336;
+    font-weight: bold;
+}
+
+.option-label {
+    width: 30px;
+    color: #666;
+    font-size: 16px;
+}
+
+.option-content {
+    flex: 1;
+    margin-right: 34px;
+    text-align: center;
+}
+
+/* 选项状态样式 */
+.option:hover {
+    border-color: #33ccff;
+    background: rgba(51, 204, 255, 0.05);
+}
+
+.option.selected {
+    border-color: #33ccff;
+    background: rgba(51, 204, 255, 0.1);
+}
+
+.option.correct {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.option.wrong {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.option.disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+/* 移除選中狀態的背景色 */
+.option input[type="radio"]:checked + .option-content {
+    background-color: transparent;
+}
+
+/* 正確答案 */
+.option.correct {
+    background-color: #c8e6c9;
+    border-color: #81c784;
+}
+
+/* 錯誤答案 */
+.option.wrong {
+    background-color: #ffcdd2;
+    border-color: #e57373;
+}
+
+/* 禁用狀態 */
+.option input[type="radio"]:disabled + .option-content {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.submit-btn {
+    padding: 0.75rem 2rem;
+    background: #33ccff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.submit-btn:hover {
+    background: #1ab2e8;
+}
+
+.explanation {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #33ccff;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.explanation.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.explanation h4 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.explanation-content {
+    color: #333;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+.next-question {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.next-btn {
+    background: #33ccff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.next-btn:hover {
+    background: #2bb7e5;
+    transform: translateX(3px);
+}
+
+.next-btn .arrow {
+    font-size: 16px;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        display: block;
+    }
+}
+
+.error-message {
+    color: #dc3545;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* 移除默認的列表樣式 */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* 展開/收起箭頭 */
+details > summary {
+    list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+details > summary::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.5rem;
+    transition: transform 0.2s;
+}
+
+details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+/* 禁用狀態的樣式 */
+.option input[disabled] {
+    cursor: not-allowed;
+}
+
+.option input[disabled] + span {
+    opacity: 0.7;
+}
+
+.next-question-container {
+    margin-top: 2rem;
+    text-align: right;
+}
+
+.next-btn {
+    background: #33ccff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.next-btn:hover {
+    background: #1ab2e8;
+    transform: translateX(5px);
+}
+
+.next-btn .arrow {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.next-btn:hover .arrow {
+    transform: translateX(3px);
+}
+
+/* 添加動畫效果 */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.next-question-container {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* 滾動條美化 */
+.question-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.question-area::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.question-area::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.question-area::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 修改章節樣式 */
+.chapter-section ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.5rem;
+    list-style: none;
+}
+
+.chapter-section ul li {
+    flex: 0 1 auto;
+    min-width: 200px;
+}
+
+/* 調整子章節的樣式 */
+.chapter-section ul ul {
+    display: block;  /* 子章節內的內容保持垂直排列 */
+    padding-left: 1.5rem;
+}
+
+.chapter-section ul ul li {
+    width: 100%;
+}
+
+/* 調整標題樣式 */
+.chapter-title, .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;  /* 確保標題佔滿整行 */
+}
+
+.section-title {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-radius: 4px;
+    background: #e9ecef;
+}
+
+/* 調整文件夾圖標的大小和對齊 */
+.chapter-title:before, .section-title:before {
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+/* 目录结构样式 */
+.directory-structure {
+    padding: 10px;
+    font-family: Arial, sans-serif;
+}
+
+/* 文件夹样式 */
+.folder {
+    margin: 5px 0;
+}
+
+.folder-content {
+    display: none;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.folder.expanded > .folder-content {
+    display: block;
+}
+
+/* 文件夹标题样式 */
+.folder-title {
+    color: white;
+    cursor: pointer;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.folder-name {
+    color: white;
+    flex: 1;
+}
+
+/* 生成器项目样式 */
+.generator-item {
+    color: white;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.generator-title {
+    color: white;
+    flex: 1;
+}
+
+/* 难度标签样式 */
+.difficulty-badge {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+}
+
+/* 文件夹内容样式 */
+.folder-content {
+    padding-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 悬停效果 */
+.folder-title:hover,
+.generator-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 图标样式 */
+.icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+
+.folder-icon {
+    color: #ffd700;
+}
+
+.file-icon {
+    color: #75bfff;
+}
+
+/* 确保主内容区域不被侧边栏遮挡 */
+.main-content {
+    margin-left: 300px;
+    flex: 1;
+    padding: 20px;
+    min-height: calc(100vh - 60px);
+    transition: margin-left 0.3s ease;
+}
+
+/* 調整手柄 */
+.resize-handle {
+    position: absolute;
+    right: -5px;
+    top: 0;
+    width: 10px;
+    height: 100%;
+    cursor: col-resize;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.resize-handle:hover,
+.resize-handle.active {
+    background: rgba(51, 204, 255, 0.3);
+}
+
+/* 拖動時禁用文字選擇 */
+.resizing {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* 添加子小节的样式 */
+.folder.subsection {
+    margin-left: 1rem;
+}
+
+.folder.subsection .folder-title {
+    font-size: 0.9em;
+    background: rgba(255,255,255,0.05);
+}
+
+.folder.subsection .folder-content {
+    display: none;
+    border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+.folder.subsection.expanded > .folder-content {
+    display: block;
+}
+
+.folder.subsection .folder-content {
+    display: none;
+    border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+.folder.subsection.expanded > .folder-content {
+    display: block;
+}
+
+/* 修改答案图标的基础样式 */
+.option::after {
+    content: '';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 正确答案的绿色对勾 */
+.option.correct.selected::after {
+    content: '✓';
+    opacity: 1;
+    color: #4CAF50;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* 移除错误答案的叉号样式 */
+.option.wrong::after {
+    content: '';
+    opacity: 0;
+}
+
+/* 调整选项内容的布局 */
+.option {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    position: relative;
+}
+
+.option-content {
+    flex: 1;
+    margin-right: 34px;
+}
+
+/* 静音按钮样式 */
+.mute-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    width: 40px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.mute-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mute-button .mute-icon {
+    font-size: 20px;
+    color: white;
+}
+
+.mute-button.muted .mute-icon {
+    opacity: 0.7;
+}
+
+/* 修改导航栏样式 */
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 60px;
+    background-color: #33ccff;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.nav-links a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+} 

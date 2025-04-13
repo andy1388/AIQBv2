@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數學求解器 - AI_QB</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/solver.css">
+    <!-- 使用本地的 MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                ready: () => {
+                    MathJax.startup.defaultReady();
+                    // 通知页面 MathJax 已准备就绪
+                    document.dispatchEvent(new Event('MathJaxReady'));
+                }
+            }
+        };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">AI_QB</a>
+            <div class="nav-links">
+                <a href="/practice.html">練習</a>
+                <a href="/solver.html" class="active">求解器</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="solver-layout">
+        <!-- 左側：題目生成 -->
+        <div class="generator-section">
+            <h2>生成練習題</h2>
+            <div class="generator-controls">
+                <!-- 運算類型選擇 -->
+                <div class="select-group">
+                    <label for="operation-type">運算類型：</label>
+                    <select id="operation-type">
+                        <optgroup label="基礎運算">
+                            <option value="fraction-reduction">分數約簡</option>
+                            <option value="decimal-fraction-conversion">小數分數轉換</option>
+                            <option value="gcd">最大公因數</option>
+                            <option value="lcm">最小公倍數</option>
+                            <option value="prime-factorization">質因數分解</option>
+                        </optgroup>
+                        <optgroup label="四則運算">
+                            <option value="addition">加法</option>
+                            <option value="subtraction">減法</option>
+                            <option value="multiplication">多項式乘法</option>
+                            <option value="division">除法</option>
+                            <option value="mixed">混合運算</option>
+                        </optgroup>
+                        <optgroup label="方程">
+                            <option value="linear">一次方程</option>
+                            <option value="quadratic">二次方程</option>
+                            <option value="fraction">分數方程</option>
+                        </optgroup>
+                        <optgroup label="代數運算">
+                            <option value="indices">指數運算</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- 難度選擇 -->
+                <div class="select-group">
+                    <label for="difficulty">難度等級：</label>
+                    <select id="difficulty">
+                        <!-- 選項會由 JavaScript 動態生成 -->
+                    </select>
+                    <div class="difficulty-info">
+                        <i class="info-icon">ℹ</i>
+                        <span class="info-text">選擇不同難度等級來練習不同類型的題目</span>
+                    </div>
+                </div>
+
+                <button id="generate-btn">生成題目</button>
+            </div>
+            <div class="generated-question">
+                <!-- 生成的題目會顯示在這裡 -->
+            </div>
+            <div class="generation-history">
+                <h3>生成記錄</h3>
+                <ul id="history-list">
+                    <!-- 生成記錄會顯示在這裡 -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- 右側：求解器和實驗區 -->
+        <div class="right-section">
+            <!-- 求解器 -->
+            <div class="solver-section">
+                <h2>方程式求解器</h2>
+                <div class="equation-input">
+                    <input type="text" 
+                           id="equation-input" 
+                           placeholder="輸入算式，例如：\frac{12}{28} 或 12/28">
+                    <button id="solve-btn">求解</button>
+                </div>
+                <div class="equation-preview">
+                    <div class="preview-content"></div>
+                </div>
+                <div class="solution-section">
+                    <div class="steps-container">
+                        <!-- 解題步驟會在這裡動態生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 實驗區 -->
+            <div class="experiment-section">
+                <h2>實驗區</h2>
+                <div class="experiment-content">
+                    <div class="expression-history">
+                        <!-- 表达式历史记录会在这里动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 表達式狀態區域 -->
+                <div class="expression-status">
+                    <h3>表達式屬性</h3>
+                    <div class="status-grid">
+                        <!-- 基本類型 -->
+                        <div class="status-item">
+                            <span class="status-label">類型：</span>
+                            <span class="status-value" id="expression-type">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">項數：</span>
+                            <span class="status-value" id="term-count">-</span>
+                        </div>
+                        
+                        <!-- 分數相關 -->
+                        <div class="status-item">
+                            <span class="status-label">分數：</span>
+                            <span class="status-value" id="fraction-status">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">分數數量：</span>
+                            <span class="status-value" id="fraction-count">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">嵌套分數：</span>
+                            <span class="status-value" id="nested-fraction">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">嵌套層級：</span>
+                            <span class="status-value" id="nested-level">-</span>
+                        </div>
+                        
+                        <!-- 無理數相關 -->
+                        <div class="status-item">
+                            <span class="status-label">無理數：</span>
+                            <span class="status-value" id="irrational-status">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">根號：</span>
+                            <span class="status-value" id="sqrt-status">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">π：</span>
+                            <span class="status-value" id="pi-status">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">e：</span>
+                            <span class="status-value" id="e-status">-</span>
+                        </div>
+                        
+                        <!-- 變量相關 -->
+                        <div class="status-item">
+                            <span class="status-label">變量：</span>
+                            <span class="status-value" id="variable-status">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">變量列表：</span>
+                            <span class="status-value" id="variable-list">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 在表達式狀態區域中添加同類項信息 -->
+                <div class="status-section">
+                    <h4>同類項信息</h4>
+                    <div class="status-item">
+                        <span class="status-label">同類項：</span>
+                        <span class="status-value" id="like-terms-status">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">同類項組：</span>
+                        <span class="status-value" id="like-terms-groups">-</span>
+                    </div>
+                </div>
+                
+                <!-- 在表達式屬性區域添加括號相關信息 -->
+                <div class="status-section">
+                    <h4>括號信息</h4>
+                    <div class="status-item">
+                        <span class="status-label">括號：</span>
+                        <span class="status-value" id="bracket-status">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">括號數量：</span>
+                        <span class="status-value" id="bracket-count">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">需要展開：</span>
+                        <span class="status-value" id="expansion-status">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">括號內容：</span>
+                        <span class="status-value" id="bracket-terms">-</span>
+                    </div>
+                </div>
+                
+                <!-- 操作按鈕區 -->
+                <div class="operation-buttons">
+                    <button class="op-btn" data-op="combine" title="合併表達式中的同類項">
+                        合併同類項
+                    </button>
+                    <button class="op-btn" data-op="simplify" title="化簡表達式">
+                        化簡
+                    </button>
+                    <button class="op-btn" data-op="reduce" title="約分分數">
+                        約分
+                    </button>
+                    <button class="op-btn" data-op="common-denominator" title="將分數轉換為同分母">
+                        通分
+                    </button>
+                    <button class="op-btn" data-op="expand" title="展開括號">
+                        展開
+                    </button>
+                    <button class="op-btn" data-op="factorize" title="將表達式分解為因式">
+                        因式分解
+                    </button>
+                    <button class="op-btn" data-op="decimal-fraction" title="在小數和分數之間轉換">
+                        小數分數轉換
+                    </button>
+                    <button class="op-btn" data-op="prime-factorize" title="將數字分解為質因數的乘積">
+                        質因數分解
+                    </button>
+                    <button class="op-btn" data-op="simplify-indices" title="將指數表達式化簡為正指數形式">
+                        指數化簡
+                    </button>
+                    <button class="op-btn" data-op="calculate" title="計算括號內的數字運算">
+                        計算
+                    </button>
+                    <button class="op-btn" data-op="number-calculate" title="計算數字和分數的加減">
+                        數字運算
+                    </button>
+                    <button class="op-btn" data-op="simplify-one-term" title="合併同底項的指數">
+                        合併同底項
+                    </button>
+                    <button class="op-btn" data-op="find-innermost" title="分析括号层级结构">
+                        找內層
+                    </button>
+                    <button class="op-btn" data-op="normalize" title="标准化并排序多项式">
+                        標準化
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/solver.js"></script>
+</body>
+</html> 

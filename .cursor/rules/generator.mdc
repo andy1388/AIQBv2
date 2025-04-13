@@ -1,0 +1,13 @@
+---
+description: 
+globs: backend/src/generators/*.ts
+alwaysApply: false
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+    follow the rule [QuestionGeneratorRules.txt](mdc:QuestionGeneratorRules.txt)
+    here is the template [template.ts](mdc:backend/src/generators/template.ts)
+    if need help about simplify, use the utils in [mathUtils.ts](mdc:backend/src/utils/mathUtils.ts)

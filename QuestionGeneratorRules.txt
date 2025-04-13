@@ -1,0 +1,216 @@
+數學題目生成器規則說明 v2.1
+==========================
+
+1. 基本架構
+----------
+1.1 文件結構 (按課程大綱)
+    /generators
+    ├── F1/                     # 中一課程
+    │   ├── F1_L0_Basic Mathematics/                # Basic Mathematics
+    │   │   ├── F1L0.1_Arithmetic Operations/         # Revision on Fundamental Arithmetic
+    │   │   │   ├── F1L0.1.1_AdditionGenerator.ts   # Arithmetic Operations
+    │   │   │   ├── F1L0.1.2_SubtractionGenerator.ts # L.C.M. and H.C.F.
+    │   │   │   └── F1L0.1.3_MultiplicationGenerator.ts # Fractions and Decimals
+    │   │   └── F1L0.2_Divisibility and Classification/         # Divisibility and Classification
+    │   │   │   ├── F1L0.2.1_Index Notation/         # Divisibility and Classification
+    │   │   │   ├── F1L0.2.2_Short Division/         # Divisibility and Classification
+    │   │   │   └── F1L0.2.3_Tests of Divisibility/         # Divisibility and Classification
+    │   │   └── F1L0.2.4_Classification of Numbers/         # Divisibility and Classification
+    │   ├── F1L1_Directed Number/                # Directed Number
+    │   │   ├── F1L1.1_Concept/         # Concept
+    │   │   │   ├── F1L1.1.1_AdditionGenerator.ts   # Arithmetic Operations
+    │   │   │   ├── F1L1.1.2_SubtractionGenerator.ts # L.C.M. and H.C.F.
+    │   │   │   └── F1L1.1.3_MultiplicationGenerator.ts # Fractions and Decimals
+    │   │   └── F1L1.2_Application/         # Divisibility and Classification
+    │   └── L2_Introduction to Algebra  /                # Introduction to Algebra
+    ├── F2/                     # 中二課程
+    ├── F3/                     # 中三課程
+    ├── F4/                     # 中四課程
+    └── F5/                     # 中五課程
+
+1.2 命名規範
+    生成器文件: {章節代碼}_Generator_{題號}_{難度}_{題型}.ts
+    說明文件: {章節代碼}_Generator_{題號}_{難度}_{題型}.desc.txt
+    
+    難度分類：
+    F = Foundation (基礎)
+    N = Normal (普通)
+    H = Hard (較難)
+    E = Elite (精英)
+
+    題型分類：
+    MQ = Multiple Choice Question (多項選擇題)
+    SQ = Short Question (填空題)
+    LQ = Long Question (長題目)
+
+    題號說明：
+    Q1, Q2, Q3... = 由開發者設定的題目編號，用於區分同一章節中的不同題目
+
+    例如:
+    /generators/F1/L0/L0.1/L0.1.1/
+    ├── F1L0.1.1_Generator_Q1_F_MQ.ts      # 第一題基礎難度多項選擇題
+    ├── F1L0.1.1_Generator_Q1_F_MQ.desc.txt
+    ├── F1L0.1.1_Generator_Q2_N_SQ.ts      # 第二題普通難度填空題
+    └── F1L0.1.1_Generator_Q2_N_SQ.desc.txt
+
+2. 題型分類與難度
+---------------
+2.1 基礎運算類 [F1L0-F1L2]
+    Level 1: 單步運算
+    Level 2: 雙步運算
+    Level 3: 多步運算
+    Level 4: 綜合運算
+    Level 5: 複雜應用
+
+2.2 代數類 [F1L3-F2L3]
+    Level 1: 基本方程
+    Level 2: 分數方程
+    Level 3: 應用題
+    Level 4: 複合方程
+    Level 5: 證明題
+
+2.3 幾何類 [F1L6-F2L5]
+    Level 1: 基本圖形
+    Level 2: 組合圖形
+    Level 3: 證明題
+    Level 4: 構造題
+    Level 5: 複雜證明
+
+3. 變量生成規則
+-------------
+3.1 數值變量規則
+    整數範圍: [-100, 100]
+    分數規則: 分母不超過12
+    小數位數: 不超過2位
+    特殊值: π, e, √2, √3 等
+
+3.2 代數變量規則
+    變量名稱: x, y, z, a, b, c
+    係數範圍: [-10, 10]
+    指數範圍: [-3, 3]
+    分式限制: 分母不為0
+
+3.3 幾何變量規則
+    角度: 優先使用 30°, 45°, 60°, 90°
+    邊長比: 優先使用 1:1, 1:2, 1:√3, 1:√2
+    面積單位: cm², m²
+    體積單位: cm³, m³
+
+4. 輸入/輸出格式規範 (新增)
+------------------------
+4.1 生成器類結構
+    ```typescript
+    import { QuestionGenerator, IGeneratorOutput } from '../../QuestionGenerator';
+
+    export class F1L12Generator extends QuestionGenerator {
+        constructor(difficulty: number) {
+            super(difficulty, 'F1L12.1_Q1_F_MQ');
+        }
+
+        generate(): IGeneratorOutput {
+            return {
+                content: string,          // 題目內容
+                correctAnswer: string,    // 正確答案
+                wrongAnswers: string[],   // 錯誤選項陣列
+                explanation: string       // 解題說明
+            };
+        }
+    }
+    ```
+
+4.2 IGeneratorOutput 介面
+    ```typescript
+    interface IGeneratorOutput {
+        content: string;        // 題目內容
+        correctAnswer: string;  // 正確答案
+        wrongAnswers: string[]; // 錯誤選項（通常3個）
+        explanation: string;    // 解題步驟說明
+        
+        // 可選屬性
+        hasImage?: boolean;     // 是否包含圖片
+        imageUrl?: string;      // 圖片URL
+        
+        type?: 'text' | 'image' | 'mixed';
+        
+        metadata?: {
+            topic?: string;
+            subtopic?: string;
+            skills?: string[];
+            prerequisites?: string[];
+        };
+        
+        displayOptions?: {
+            latex?: boolean;    // 是否需要LaTeX渲染
+            graph?: boolean;    // 是否需要圖表
+            table?: boolean;    // 是否需要表格
+        };
+    }
+    ```
+
+4.3 LaTeX 格式規範
+    - 基本運算符：\times, \div, \cdot
+    - 指數：x^{2}, a^{n}
+    - 分數：\frac{分子}{分母}
+    - 根號：\sqrt{}, \sqrt[n]{}
+    - 特殊符號：\pi, \infty, \pm
+    
+    格式化規則：
+    - 所有數學公式必須用 \( \) 或 \[ \] 包圍
+    - 行內公式使用 \( \)
+    - 獨立公式使用 \[ \]
+
+4.4 錯誤選項要求
+    - 必須生成至少3個錯誤選項
+    - 錯誤選項必須合理且具有迷惑性
+    - 避免明顯不合理的選項
+    - 錯誤選項的格式必須與正確答案一致
+
+5. 答案格式規範
+-------------
+5.1 計算題答案格式
+    {
+        "steps": [
+            {
+                "description": "步驟說明",
+                "formula": "使用的公式",
+                "calculation": "計算過程"
+            }
+        ],
+        "final_answer": "最終答案",
+        "unit": "單位"
+    }
+
+5.2 證明題答案格式
+    {
+        "given": ["已知條件1", "已知條件2"],
+        "prove": ["證明步驟1", "證明步驟2"],
+        "conclusion": "結論"
+    }
+
+6. 質量控制
+----------
+6.1 生成限制
+    - 每個數值必須在合理範圍內
+    - 確保方程有解
+    - 避免除以零
+    - 避免不合理的圖形
+
+6.2 答案驗證
+    - 自動計算答案
+    - 檢查步驟合理性
+    - 驗證單位一致性
+    - 確保答案唯一
+
+7. 擴展功能
+----------
+7.1 圖形生成
+    - 支持基本幾何圖形
+    - 支持坐標系圖形
+    - 支持統計圖表
+    - 支持立體圖形
+
+7.2 公式渲染
+    - 支持 LaTeX 格式
+    - 支持數學符號
+    - 支持特殊字符
+    - 支持上下標 

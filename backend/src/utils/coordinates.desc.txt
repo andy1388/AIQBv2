@@ -1,0 +1,132 @@
+CoordinateSystem Class
+===================================
+
+Purpose:
+-----------------------------------
+A utility class for drawing coordinate systems in SVG format, supporting points, lines, curves, inequalities and circles.
+
+Main Features:
+-----------------------------------
+1. Basic Coordinate System
+   - Customizable dimensions and ranges
+   - Grid lines and axes
+   - Scale and offset handling
+
+2. Drawing Elements
+   - Points with labels
+   - Lines (vertical, oblique)
+   - Functions (curves)
+   - Inequalities with shading
+   - Circles (full/partial)
+
+API Reference:
+-----------------------------------
+1. Constructor:
+   new CoordinateSystem({
+       width: number,          // SVG width
+       height: number,         // SVG height
+       xRange: [min, max],     // x-axis range
+       yRange: [min, max],     // y-axis range
+       showGrid?: boolean,     // show grid lines
+       gridColor?: string,     // grid color
+       gridOpacity?: number    // grid opacity
+   })
+
+2. Methods:
+   addPoint(x, y, symbol, label, offsetX, offsetY)
+   addVerticalLine(x, color, style)
+   addObliqueLine(slope, yIntercept, color, style)
+   addFunction(fn, color, style, showEquation)
+   addLinearConstraint(slope, yIntercept, isGreaterThan, color, style)
+   addCircle(centerX, centerY, radius, color, style, domain?, range?)
+   createExplanationSystem(config: ExplanationSystemConfig): CoordinateSystem
+   addCoordinateLocatingGuides(point, step, isXAxisOnly?, isYAxisOnly?)
+   toString(): string         // Returns SVG string
+
+3. Styles:
+   - Colors: Any valid SVG color
+   - Line styles: "solid" | "dotted"
+   - Fill opacity: 0.0 to 1.0
+
+Usage Examples:
+-----------------------------------
+1. Basic Setup:
+   ```typescript
+   const coord = new CoordinateSystem({
+       width: 400,
+       height: 400,
+       xRange: [0, 5],
+       yRange: [0, 5]
+   });
+   ```
+
+2. Drawing Inequality (y > 3^x):
+   ```typescript
+   coord.addLinearConstraint(
+       x => Math.pow(3, x),  // function
+       0,                    // y-intercept
+       true,                // greater than
+       "red",              // color
+       "dotted"            // style
+   );
+   ```
+
+3. Adding Points:
+   ```typescript
+   coord.addPoint(2, 3, "●", "A", 10, -10);
+   ```
+
+Implementation Notes:
+-----------------------------------
+1. SVG Coordinate System:
+   - Origin at top-left
+   - Y-axis inverted
+   - Uses transform for mathematical coordinates
+
+2. Shading Logic:
+   - For y > f(x): shade above curve
+   - For y < f(x): shade below curve
+   - Uses path elements for regions
+   - Dotted lines for strict inequalities
+
+3. Performance:
+   - Uses 100 steps for smooth curves
+   - Optimized path generation
+   - Minimal DOM elements
+
+Limitations:
+-----------------------------------
+1. Range Restrictions:
+   - Recommended x,y range: [-5, 5]
+   - Minimum step size: 0.1
+   - Maximum dimensions: 1000x1000
+
+2. Browser Support:
+   - Requires SVG support
+   - Modern browsers only 
+
+4. Coordinate Location Helpers:
+   createExplanationSystem:
+     Creates a coordinate system for explaining coordinate location
+     - Supports full system or single-axis display
+     - Configurable grid and number display
+     - Parameters:
+       * width, height: system dimensions
+       * xRange, yRange: axis ranges
+       * point: target point {x, y}
+       * showGridLines: toggle grid visibility
+       * showAxisNumbers: toggle axis numbers
+       * isXAxisOnly: show only x-axis
+       * isYAxisOnly: show only y-axis
+
+   addCoordinateLocatingGuides:
+     Adds visual guides for locating coordinates
+     - Green dotted lines: auxiliary lines from point to axes
+     - Red arrows: indicate x-coordinate distance
+     - Blue arrows: indicate y-coordinate distance
+     - Coordinate labels: show actual values
+     - Parameters:
+       * point: target point {x, y}
+       * step: 1 for x-coord, 2 for y-coord
+       * isXAxisOnly: locate on x-axis only
+       * isYAxisOnly: locate on y-axis only 

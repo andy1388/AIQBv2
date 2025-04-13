@@ -1,0 +1,59 @@
+Generator ID: QuestionGenerator
+Description: 问题生成器基类
+
+功能概述：
+这是所有问题生成器的抽象基类，提供了以下核心功能：
+1. 难度等级管理
+2. 生成器ID管理
+3. 自动读取最大难度配置
+4. 标准化输出格式处理
+
+基类特性：
+1. 自动从.desc.txt文件读取最大难度配置
+2. 提供标准化的生成器输出接口
+3. 支持元数据和显示选项配置
+4. 支持多种问题类型（文本、图片、混合）
+
+输出格式 (IGeneratorOutput):
+{
+    content: string;           // 问题内容
+    correctAnswer: string;     // 正确答案
+    wrongAnswers: string[];    // 错误答案列表
+    explanation: string;       // 解释说明
+    
+    // 可选字段
+    hasImage?: boolean;        // 是否包含图片
+    imageUrl?: string;         // 图片URL
+    
+    type?: 'text' | 'image' | 'mixed';  // 问题类型
+    
+    metadata?: {               // 元数据
+        topic?: string;        // 主题
+        subtopic?: string;     // 子主题
+        skills?: string[];     // 相关技能
+        prerequisites?: string[]; // 前置知识
+    };
+    
+    displayOptions?: {         // 显示选项
+        latex?: boolean;       // 是否包含LaTeX
+        graph?: boolean;       // 是否包含图表
+        table?: boolean;       // 是否包含表格
+    };
+}
+
+使用说明：
+1. 继承此类时必须实现 generate() 方法
+2. 使用 getGeneratorOutput() 方法标准化输出
+3. 在构造函数中必须提供：
+   - difficulty: 难度等级
+   - generatorId: 生成器标识符
+
+配置文件要求：
+- 每个生成器都需要对应的.desc.txt文件
+- .desc.txt必须包含"Level number"字段
+- 文件位置应与生成器类文件在同一目录
+
+注意事项：
+- 难度等级范围取决于.desc.txt中的配置
+- 生成器ID应与文件名保持一致
+- 确保错误处理和日志记录的正确实现 

@@ -1,0 +1,141 @@
+數學求解系統設計 v1.0
+===================================
+
+文件結構
+-----------------------------------
+backend/
+└── src/
+    └── solver/
+        ├── arithmetic/          # 四則運算模組
+        │   ├── Addition.ts      # 加法
+        │   ├── Subtraction.ts   # 減法
+        │   ├── Multiplication.ts# 乘法
+        │   ├── Division.ts      # 除法
+        │   └── Mixed.ts         # 混合運算
+        ├── equation/            # 方程式模組
+        │   ├── linear/          # 一次方程
+        │   ├── quadratic/       # 二次方程
+        │   └── fraction/        # 分數方程
+        ├── types/               # 類型定義
+        │   ├── Operation.ts     # 運算相關類型
+        │   └── Solution.ts      # 解答相關類型
+        └── utils/               # 工具函數
+            └── mathUtils.ts     # 數學工具
+
+一、四則運算模組 (arithmetic)
+-----------------------------------
+1. 加法運算 (Addition.ts)
+   難度等級：
+   - Level 1: 個位數加法 (1-9)
+   - Level 2: 雙位數加法 (10-99)
+   - Level 3: 三位數加法 (100-999)
+   - Level 4: 帶小數加法
+   - Level 5: 混合計算
+
+2. 減法運算 (Subtraction.ts)
+   難度等級：
+   - Level 1: 個位數減法 (1-9)
+   - Level 2: 雙位數減法，不需借位
+   - Level 3: 雙位數減法，需要借位
+   - Level 4: 三位數減法
+   - Level 5: 帶小數減法
+
+3. 乘法運算 (Multiplication.ts)
+   難度等級：
+   - Level 1: 乘法表 (1-9)
+   - Level 2: 雙位數 × 個位數
+   - Level 3: 雙位數 × 雙位數
+   - Level 4: 三位數乘法
+   - Level 5: 小數乘法
+
+4. 除法運算 (Division.ts)
+   難度等級：
+   - Level 1: 整除 (答案個位數)
+   - Level 2: 整除 (答案雙位數)
+   - Level 3: 有餘數除法
+   - Level 4: 小數除法
+   - Level 5: 循環小數
+
+5. 混合運算 (Mixed.ts)
+   難度等級：
+   - Level 1: 二步運算
+   - Level 2: 三步運算
+   - Level 3: 帶括號運算
+   - Level 4: 複雜混合運算
+   - Level 5: 分數混合運算
+
+二、類型定義
+-----------------------------------
+1. Operation.ts
+   ```typescript
+   interface ArithmeticOperation {
+       type: 'addition' | 'subtraction' | 'multiplication' | 'division';
+       operands: number[];
+       difficulty: 1 | 2 | 3 | 4 | 5;
+   }
+
+   interface CalculationStep {
+       description: string;
+       operation: string;
+       result: number;
+       explanation?: string;
+   }
+   ```
+
+2. Solution.ts
+   ```typescript
+   interface ArithmeticSolution {
+       steps: CalculationStep[];
+       finalAnswer: number;
+       formattedAnswer: string;
+   }
+   ```
+
+三、生成規則
+-----------------------------------
+1. 數值範圍
+   - Level 1: 1-9
+   - Level 2: 10-99
+   - Level 3: 100-999
+   - Level 4: 1-9999
+   - Level 5: 任意範圍
+
+2. 運算規則
+   - 加法：確保不超過指定位數
+   - 減法：根據難度決定是否需要借位
+   - 乘法：控制結果的位數
+   - 除法：控制餘數和小數位數
+
+3. 答案要求
+   - 整數題：結果為整數
+   - 小數題：最多保留兩位小數
+   - 分數題：需要化簡
+
+四、解題步驟展示
+-----------------------------------
+1. 加減法步驟
+   - 顯示位值對齊
+   - 標註進位/借位
+   - 逐步計算過程
+
+2. 乘法步驟
+   - 分解乘法步驟
+   - 顯示部分積
+   - 最後合併結果
+
+3. 除法步驟
+   - 顯示商
+   - 顯示餘數
+   - 小數點處理
+
+五、擴展功能
+-----------------------------------
+1. 題型變化
+   - 填空題
+   - 應用題
+   - 估算題
+
+2. 進階功能
+   - 圖形化表示
+   - 數字分解說明
+   - 口訣提示 
