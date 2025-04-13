@@ -427,11 +427,14 @@ export const ExpressionAnalyzer = {
             cleanLatex.match(/(?<![\\{])[a-zA-Z](?![a-zA-Z}])/g) || []
         );
 
-        return {
+        // Fix the type error in the list property
+        const variableInfo: VariableInfo = {
             hasVariables: variables.size > 0,
             count: variables.size,
-            list: Array.from(variables)
+            list: Array.from(variables).map(String) // Convert to string array
         };
+
+        return variableInfo;
     },
 
     /**

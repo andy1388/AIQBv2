@@ -1,21 +1,19 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "esModuleInterop": true,
     "target": "es6",
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
+    "strict": false,
+    "noImplicitAny": false,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": "./src",
-    "paths": {
-      "@/*": ["./*"]
-    },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/types"
-    ]
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowJs": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

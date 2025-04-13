@@ -1,4 +1,4 @@
-import { QuestionGenerator, IGeneratorOutput } from '../../../QuestionGenerator';
+import { QuestionGenerator, IGeneratorOutput } from '../../../../QuestionGenerator';
 
 interface Term {
     coefficient: number;
@@ -7,12 +7,12 @@ interface Term {
     missingVar?: string;   // 記錄哪個變量的指數缺失
 }
 
-export default class F1L12_1_Generator_Q2_F_MQ extends QuestionGenerator {
+export class F1L12_1_Generator_Q2_F_MQ extends QuestionGenerator {
     protected readonly VARIABLES = ['x', 'y', 'z', 'a', 'b', 'm', 'n', 'p', 'q', 'r'];
     protected missingExponent: number = 0;  // 記錄缺失的指數值
 
-    constructor(difficulty: number = 1) {
-        super(difficulty, 'F1L12.1');
+    constructor(difficulty: number) {
+        super(difficulty, 'F1L12.1_Generator_Q2_F_MQ');
     }
 
     generate(): IGeneratorOutput {
@@ -45,8 +45,7 @@ export default class F1L12_1_Generator_Q2_F_MQ extends QuestionGenerator {
         return {
             content: question,
             correctAnswer: this.missingExponent.toString(),
-            options: [this.missingExponent.toString(), ...wrongAnswers],
-            correctIndex: 0,
+            wrongAnswers: wrongAnswers,
             explanation: steps
         };
     }

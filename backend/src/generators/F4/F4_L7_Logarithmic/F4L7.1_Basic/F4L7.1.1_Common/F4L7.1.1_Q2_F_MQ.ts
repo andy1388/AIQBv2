@@ -7,8 +7,7 @@ import {
     DEFAULT_CONFIG,
     roundTo,
     ExpressionAnalyzer,
-    generateFactorCombinations,
-    formatLogResult
+    generateFactorCombinations
 } from '@/utils/mathUtils';
 
 interface AdvancedLogQuestion {
@@ -22,6 +21,10 @@ interface AdvancedLogQuestion {
 export default class F4L7_1_1_Q2_F_MQ extends QuestionGenerator {
     constructor(difficulty: number) {
         super(difficulty, 'F4L7.1.1_Q2_F_MQ');
+    }
+
+    private formatLogResult(result: number): string {
+        return result.toString();
     }
 
     generate(): IGeneratorOutput {

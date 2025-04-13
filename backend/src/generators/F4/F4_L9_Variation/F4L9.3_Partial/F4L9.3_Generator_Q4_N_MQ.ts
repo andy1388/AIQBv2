@@ -1,4 +1,5 @@
-import { QuestionGenerator, IGeneratorOutput } from '../../../QuestionGenerator';
+import { QuestionGenerator, IGeneratorOutput } from '../../../../generators/QuestionGenerator';
+import { shuffleArray } from '../../../../utils/mathUtils';
 import { FractionUtils } from '../../../../utils/FractionUtils';
 
 interface Factor {
@@ -10,15 +11,24 @@ interface Factor {
     variables: [string, string];  // 使用的两个变量 [var1, var2]
 }
 
-export default class F2L2_5_Generator_Q4_N_MQ extends QuestionGenerator {
-    // 定义不同难度可用的变量
-    private readonly basicVariables: [string, string] = ['x', 'y'];
-    private readonly advancedVariablePairs: [string, string][] = [
-        ['m', 'n'], ['p', 'q'], ['r', 's'], ['u', 'v']
-    ];
+export class F4L9_3_Generator_Q4_N_MQ extends QuestionGenerator {
+    protected difficulty: number;
 
-    constructor(difficulty: number = 1) {
-        super(difficulty, 'F2L2.5');
+    constructor(difficulty: number) {
+        super(difficulty, 'F4L9.3_Generator_Q4_N_MQ');
+        this.difficulty = difficulty;
+    }
+
+    generate(): IGeneratorOutput {
+        const options = ["Option 1", "Option 2", "Option 3"];
+        const shuffledOptions = shuffleArray([...options]);
+        
+        return {
+            content: "Your question here",
+            correctAnswer: "Your answer here",
+            wrongAnswers: shuffledOptions,
+            explanation: "Explanation of the solution"
+        };
     }
 
     private gcd(a: number, b: number): number {
@@ -36,45 +46,14 @@ export default class F2L2_5_Generator_Q4_N_MQ extends QuestionGenerator {
 
     private getRandomVariables(): [string, string] {
         if (this.difficulty <= 3) {
-            return this.basicVariables;  // 返回 ['x', 'y']
+            return ['x', 'y'];
         }
-        // 难度4-5随机选择一对变量
-        return this.advancedVariablePairs[
-            Math.floor(Math.random() * this.advancedVariablePairs.length)
+        const advancedVariablePairs: [string, string][] = [
+            ['m', 'n'], ['p', 'q'], ['r', 's'], ['u', 'v']
         ];
-    }
-
-    generate(): IGeneratorOutput {
-        // 生成因子
-        const factors = this.generateFactors();
-        
-        // 计算展开式系数
-        const [p, q] = this.calculateExpandedCoefficients(factors);
-        
-        // 生成题目表达式
-        const expression = this.formatExpression(p, q, factors);
-        
-        // 生成正确答案
-        const answer = this.formatAnswer(factors);
-        
-        // 生成错误选项
-        const wrongAnswers = this.generateWrongAnswers(factors);
-        
-        // 随机打乱选项并记录正确答案的位置
-        const options = [answer, ...wrongAnswers];
-        const shuffledOptions = this.shuffleArray([...options]);
-        const correctIndex = shuffledOptions.indexOf(answer);
-
-        // 生成解题步骤
-        const steps = this.generateSteps(p, q, factors);
-
-        return {
-            content: expression,
-            correctAnswer: answer,
-            options: shuffledOptions,
-            correctIndex: correctIndex,
-            explanation: steps
-        };
+        return advancedVariablePairs[
+            Math.floor(Math.random() * advancedVariablePairs.length)
+        ];
     }
 
     private generateFactors(): Factor {
@@ -305,7 +284,7 @@ export default class F2L2_5_Generator_Q4_N_MQ extends QuestionGenerator {
         }
         
         // 打乱错误选项顺序
-        wrongChoices = this.shuffleArray(wrongChoices);
+        wrongChoices = shuffleArray(wrongChoices);
         
         // 确保至少有一个只改变外部系数的错误答案
         if (this.difficulty >= 3) {
