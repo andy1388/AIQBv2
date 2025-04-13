@@ -11,28 +11,28 @@
     "generate-index": "ts-node src/utils/generateIndex.ts"
   },
   "dependencies": {
+    "@types/katex": "^0.16.7",
     "@types/mathjs": "^9.4.2",
     "algebra.js": "^0.2.6",
     "algebrite": "^1.4.0",
-    "nerdamer": "^1.1.13",
-    "polynomial": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-validator": "^7.0.1",
     "helmet": "^7.2.0",
     "katex": "^0.16.9",
-    "@types/katex": "^0.16.7",
     "mathjax": "^3.2.2",
     "mathjs": "^14.1.0",
     "module-alias": "^2.2.3",
-    "mongoose": "^7.6.3"
+    "mongoose": "^7.6.3",
+    "nerdamer": "^1.1.13",
+    "polynomial": "^1.4.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.5",
-    "@types/node": "^20.17.12",
+    "@types/node": "^20.17.30",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
