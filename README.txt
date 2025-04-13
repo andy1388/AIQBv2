@@ -86,5 +86,12 @@ GitHub: https://github.com/your-username/math-quiz-platform
 cd backend
 npm run generateIndex
 
+// local host
 cd backend
+npm install
 npm run dev
+
+// deploy
+git add .
+git commit -m "{commit message}"
+git push origin main
