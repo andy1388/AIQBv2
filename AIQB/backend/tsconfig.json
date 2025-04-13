@@ -10,7 +10,8 @@
     "outDir": "./dist",
     "strict": true,
     "types": ["node", "express"],
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types", "./src"],
+    "noImplicitAny": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
