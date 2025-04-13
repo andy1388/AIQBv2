@@ -26,7 +26,9 @@
     "module-alias": "^2.2.3",
     "mongoose": "^7.6.3",
     "nerdamer": "^1.1.13",
-    "polynomial": "^1.4.5"
+    "polynomial": "^1.4.5",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -35,8 +37,6 @@
     "@types/node": "^20.17.30",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
   },
   "_moduleAliases": {
