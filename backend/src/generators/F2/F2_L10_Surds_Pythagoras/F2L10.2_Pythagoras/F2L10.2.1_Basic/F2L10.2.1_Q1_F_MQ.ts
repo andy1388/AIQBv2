@@ -257,30 +257,30 @@ export default class PythagorasBasicGenerator extends QuestionGenerator {
 
     // 生成问题文本
     private generateQuestionText(data: TriangleData): string {
-        // 从第一个已知角度获取斜线角度
+        // 创建更大更清晰的SVG
         const svgContent = `
         <div style="text-align: center; margin: 20px 0;">
-        <svg width="300" height="300" viewBox="-150 -150 300 300" style="background: white;">
+        <svg width="400" height="300" viewBox="0 0 400 300" style="background: white;">
             <!-- 绘制三角形 -->
-            <polygon points="0,0 100,0 0,-75" 
+            <polygon points="100,200 300,200 100,50" 
                   fill="none" stroke="black" stroke-width="2"/>
             
             <!-- 绘制直角标记 -->
-            <path d="M 15,0 L 15,-15 L 0,-15" 
+            <path d="M 120,200 L 120,180 L 100,180" 
                   fill="none" stroke="black" stroke-width="1.5"/>
             
             <!-- 添加边长标签 -->
             ${data.unknownSide !== 1 ? 
-                `<text x="50" y="15" text-anchor="middle" style="font-size: 16px;">${data.side1} cm</text>` : 
-                `<text x="50" y="15" text-anchor="middle" style="font-size: 16px; font-weight: bold;">x</text>`}
+                `<text x="200" y="225" text-anchor="middle" style="font-size: 18px;">${data.side1} cm</text>` : 
+                `<text x="200" y="225" text-anchor="middle" style="font-size: 18px; font-weight: bold;">x</text>`}
             
             ${data.unknownSide !== 2 ? 
-                `<text x="-20" y="-35" text-anchor="middle" style="font-size: 16px;">${data.side2} cm</text>` : 
-                `<text x="-20" y="-35" text-anchor="middle" style="font-size: 16px; font-weight: bold;">x</text>`}
+                `<text x="75" y="125" text-anchor="middle" style="font-size: 18px;">${data.side2} cm</text>` : 
+                `<text x="75" y="125" text-anchor="middle" style="font-size: 18px; font-weight: bold;">x</text>`}
             
             ${data.unknownSide !== 3 ? 
-                `<text x="55" y="-40" text-anchor="middle" style="font-size: 16px;">${data.hypotenuse} cm</text>` : 
-                `<text x="55" y="-40" text-anchor="middle" style="font-size: 16px; font-weight: bold;">x</text>`}
+                `<text x="210" y="110" text-anchor="middle" style="font-size: 18px;">${data.hypotenuse} cm</text>` : 
+                `<text x="210" y="110" text-anchor="middle" style="font-size: 18px; font-weight: bold;">x</text>`}
         </svg>
         </div>
         `;
