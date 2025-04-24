@@ -316,24 +316,24 @@ export default class CircleEquationGenerator extends QuestionGenerator {
         
         if (data.passingPoint) {
             // 難度4：給定圓心和通過的點
-            explanation = `解題步驟：\n\n`;
-            explanation += `1. 已知條件：\n\n`;
-            explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}\n\n`;
-            explanation += `   - 圓上一點 ${this.wrapWithLatex(`P(${data.passingPoint.x}, ${data.passingPoint.y})`)}\n\n`;
+            explanation = `解題步驟：<br><br>`;
+            explanation += `1. 已知條件：<br>`;
+            explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}<br>`;
+            explanation += `   - 圓上一點 ${this.wrapWithLatex(`P(${data.passingPoint.x}, ${data.passingPoint.y})`)}<br><br>`;
             
-            explanation += `2. 計算半徑：\n\n`;
-            explanation += `   - 半徑等於圓心到點P的距離\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{(${data.passingPoint.x} - ${data.centerX})^2 + (${data.passingPoint.y} - ${data.centerY})^2}`)}\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{${Math.pow(data.passingPoint.x - data.centerX, 2)} + ${Math.pow(data.passingPoint.y - data.centerY, 2)}}`)}\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{${Math.pow(data.passingPoint.x - data.centerX, 2) + Math.pow(data.passingPoint.y - data.centerY, 2)}}`)}\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`r = ${data.radius.toFixed(2)}`)}\n\n`;
+            explanation += `2. 計算半徑：<br>`;
+            explanation += `   - 半徑等於圓心到點P的距離<br>`;
+            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{(${data.passingPoint.x} - ${data.centerX})^2 + (${data.passingPoint.y} - ${data.centerY})^2}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{${Math.pow(data.passingPoint.x - data.centerX, 2)} + ${Math.pow(data.passingPoint.y - data.centerY, 2)}}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{${Math.pow(data.passingPoint.x - data.centerX, 2) + Math.pow(data.passingPoint.y - data.centerY, 2)}}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`r = ${data.radius.toFixed(2)}`)}<br><br>`;
             
             if (data.questionType === 'standard') {
                 // 標準形式
-                explanation += `3. 代入標準形式方程：\n\n`;
-                explanation += `   - 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}\n\n`;
-                explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑\n\n`;
-                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius.toFixed(2)}`)}\n\n`;
+                explanation += `3. 代入標準形式方程：<br>`;
+                explanation += `   - 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}<br>`;
+                explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑<br>`;
+                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius.toFixed(2)}`)}<br><br>`;
                 
                 let xTerm = '';
                 if (data.centerX === 0) {
@@ -353,16 +353,16 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                     yTerm = `(y+${Math.abs(data.centerY)})^2`;
                 }
                 
-                explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${Math.pow(data.radius, 2).toFixed(2)}`)}\n`;
+                explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${Math.pow(data.radius, 2).toFixed(2)}`)}<br>`;
             } else {
                 // 一般形式
-                explanation += `3. 轉換為一般形式方程：\n\n`;
-                explanation += `   - 圓的一般形式方程為 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}\n\n`;
-                explanation += `   - 其中 ${this.wrapWithLatex(`g=-h, f=-k, c=h^2+k^2-r^2`)}\n\n`;
-                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius.toFixed(2)}`)}\n\n`;
-                explanation += `   - ${this.wrapWithLatex(`g = ${-data.centerX}, f = ${-data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius.toFixed(2)}^2`)}\n\n`;
-                explanation += `   - ${this.wrapWithLatex(`c = ${Math.pow(data.centerX, 2)} + ${Math.pow(data.centerY, 2)} - ${Math.pow(data.radius, 2).toFixed(2)}`)}\n\n`;
-                explanation += `   - ${this.wrapWithLatex(`c = ${Math.pow(data.centerX, 2) + Math.pow(data.centerY, 2) - Math.pow(data.radius, 2)}`)}\n\n`;
+                explanation += `3. 轉換為一般形式方程：<br>`;
+                explanation += `   - 圓的一般形式方程為 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}<br>`;
+                explanation += `   - 其中 ${this.wrapWithLatex(`g=-h, f=-k, c=h^2+k^2-r^2`)}<br>`;
+                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius.toFixed(2)}`)}<br>`;
+                explanation += `   - ${this.wrapWithLatex(`g = ${-data.centerX}, f = ${-data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius.toFixed(2)}^2`)}<br>`;
+                explanation += `   - ${this.wrapWithLatex(`c = ${Math.pow(data.centerX, 2)} + ${Math.pow(data.centerY, 2)} - ${Math.pow(data.radius, 2).toFixed(2)}`)}<br>`;
+                explanation += `   - ${this.wrapWithLatex(`c = ${Math.pow(data.centerX, 2) + Math.pow(data.centerY, 2) - Math.pow(data.radius, 2)}`)}<br><br>`;
                 
                 // 構建方程
                 let equation = 'x^2 + y^2';
@@ -384,21 +384,21 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                 
                 equation += ' = 0';
                 
-                explanation += `   - 方程為 ${this.wrapWithLatex(`${equation}`)}\n`;
+                explanation += `   - 方程為 ${this.wrapWithLatex(`${equation}`)}<br>`;
             }
         } else if (data.questionType === 'standard') {
             // 難度1或2：標準形式
-            explanation = `解題步驟：\n\n`;
-            explanation += `1. 已知條件：\n\n`;
-            explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}\n\n`;
-            explanation += `   - 半徑 ${this.wrapWithLatex(`r = ${data.radius}`)}\n\n`;
+            explanation = `解題步驟：<br><br>`;
+            explanation += `1. 已知條件：<br>`;
+            explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}<br>`;
+            explanation += `   - 半徑 ${this.wrapWithLatex(`r = ${data.radius}`)}<br><br>`;
             
-            explanation += `2. 圓的標準形式方程：\n\n`;
-            explanation += `   - 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}\n\n`;
-            explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑\n\n`;
+            explanation += `2. 圓的標準形式方程：<br>`;
+            explanation += `   - 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}<br>`;
+            explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑<br><br>`;
             
-            explanation += `3. 代入已知條件：\n\n`;
-            explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}\n\n`;
+            explanation += `3. 代入已知條件：<br>`;
+            explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br><br>`;
             
             let xTerm = '';
             if (data.centerX === 0) {
@@ -418,26 +418,26 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                 yTerm = `(y+${Math.abs(data.centerY)})^2`;
             }
             
-            explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${data.radius * data.radius}`)}\n`;
+            explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${data.radius * data.radius}`)}<br>`;
         } else {
             // 難度3：一般形式
-            explanation = `解題步驟：\n\n`;
-            explanation += `1. 已知條件：\n\n`;
-            explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}\n\n`;
-            explanation += `   - 半徑 ${this.wrapWithLatex(`r = ${data.radius}`)}\n\n`;
+            explanation = `解題步驟：<br><br>`;
+            explanation += `1. 已知條件：<br>`;
+            explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}<br>`;
+            explanation += `   - 半徑 ${this.wrapWithLatex(`r = ${data.radius}`)}<br><br>`;
             
-            explanation += `2. 圓的一般形式方程：\n\n`;
-            explanation += `   - 圓的一般形式方程為 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}\n\n`;
-            explanation += `   - 其中 ${this.wrapWithLatex(`g=-h, f=-k, c=h^2+k^2-r^2`)}\n\n`;
+            explanation += `2. 圓的一般形式方程：<br>`;
+            explanation += `   - 圓的一般形式方程為 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}<br>`;
+            explanation += `   - 其中 ${this.wrapWithLatex(`g=-h, f=-k, c=h^2+k^2-r^2`)}<br><br>`;
             
-            explanation += `3. 計算係數：\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`g = -h = -${data.centerX} = ${-data.centerX}`)}\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`f = -k = -${data.centerY} = ${-data.centerY}`)}\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`c = h^2 + k^2 - r^2 = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius}^2`)}\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`c = ${data.centerX * data.centerX} + ${data.centerY * data.centerY} - ${data.radius * data.radius}`)}\n\n`;
-            explanation += `   - ${this.wrapWithLatex(`c = ${data.centerX * data.centerX + data.centerY * data.centerY - data.radius * data.radius}`)}\n\n`;
+            explanation += `3. 計算係數：<br>`;
+            explanation += `   - ${this.wrapWithLatex(`g = -h = -${data.centerX} = ${-data.centerX}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`f = -k = -${data.centerY} = ${-data.centerY}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`c = h^2 + k^2 - r^2 = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius}^2`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`c = ${data.centerX * data.centerX} + ${data.centerY * data.centerY} - ${data.radius * data.radius}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`c = ${data.centerX * data.centerX + data.centerY * data.centerY - data.radius * data.radius}`)}<br><br>`;
             
-            explanation += `4. 代入一般形式方程：\n\n`;
+            explanation += `4. 代入一般形式方程：<br>`;
             
             // 構建方程
             let equation = 'x^2 + y^2';
@@ -459,7 +459,7 @@ export default class CircleEquationGenerator extends QuestionGenerator {
             
             equation += ' = 0';
             
-            explanation += `   - 方程為 ${this.wrapWithLatex(`${equation}`)}\n`;
+            explanation += `   - 方程為 ${this.wrapWithLatex(`${equation}`)}<br>`;
         }
         
         return explanation;
