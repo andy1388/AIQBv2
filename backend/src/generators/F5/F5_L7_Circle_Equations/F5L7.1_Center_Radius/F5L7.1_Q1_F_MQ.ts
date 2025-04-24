@@ -150,75 +150,70 @@ export default class CircleEquationGenerator extends QuestionGenerator {
     // 格式化答案的輔助方法
     private formatEquation(data: CircleData): string {
         if (data.questionType === 'standard') {
-            return this.generateStandardEquation(data);
+            return this.formatStandardEquationLatex(data);
         } else {
-            return this.generateGeneralEquation(data);
+            return this.formatGeneralEquationLatex(data);
         }
     }
 
-    // 生成錯誤答案
-    private generateWrongAnswers(data: CircleData): string[] {
-        const wrongAnswers: string[] = [];
+    // 生成標準形式圓方程（直接生成LaTeX格式）
+    private formatStandardEquationLatex(data: CircleData): string {
+        const h = data.centerX;
+        const k = data.centerY;
+        const r = data.radius;
+        const rSquare = r*r;
+        
+        // 處理不同情況的括號
+        let xTerm = '';
+        if (h === 0) {
+            xTerm = 'x^{2}';
+        } else if (h > 0) {
+            xTerm = `(x-${h})^{2}`;
+        } else {
+            xTerm = `(x+${Math.abs(h)})^{2}`;
+        }
+        
+        let yTerm = '';
+        if (k === 0) {
+            yTerm = 'y^{2}';
+        } else if (k > 0) {
+            yTerm = `(y-${k})^{2}`;
+        } else {
+            yTerm = `(y+${Math.abs(k)})^{2}`;
+        }
+        
+        return `${xTerm} + ${yTerm} = ${rSquare}`;
+    }
+
+    // 生成一般形式圓方程（直接生成LaTeX格式）
+    private formatGeneralEquationLatex(data: CircleData): string {
         const h = data.centerX;
         const k = data.centerY;
         const r = data.radius;
         
-        if (data.questionType === 'standard') {
-            // 錯誤1：半徑和平方混淆
-            const wrong1 = h === 0 ? `x^2` : h > 0 ? `(x-${h})^2` : `(x+${Math.abs(h)})^2`;
-            const wrong1y = k === 0 ? `y^2` : k > 0 ? `(y-${k})^2` : `(y+${Math.abs(k)})^2`;
-            wrongAnswers.push(`${wrong1} + ${wrong1y} = ${r}`);
-            
-            // 錯誤2：圓心坐標符號錯誤
-            const wrong2 = h === 0 ? `x^2` : h > 0 ? `(x+${h})^2` : `(x-${Math.abs(h)})^2`;
-            const wrong2y = k === 0 ? `y^2` : k > 0 ? `(y+${k})^2` : `(y-${Math.abs(k)})^2`;
-            wrongAnswers.push(`${wrong2} + ${wrong2y} = ${r*r}`);
-            
-            // 錯誤3：圓心和半徑混淆
-            const wrong3 = r === 0 ? `x^2` : r > 0 ? `(x-${r})^2` : `(x+${Math.abs(r)})^2`;
-            const wrong3y = r === 0 ? `y^2` : r > 0 ? `(y-${r})^2` : `(y+${Math.abs(r)})^2`;
-            wrongAnswers.push(`${wrong3} + ${wrong3y} = ${h*h + k*k}`);
-        } else {
-            // 一般形式的錯誤
-            
-            // 錯誤1：係數符號錯誤
-            const g1 = h; // 錯誤的符號
-            const f1 = -k;
-            const c1 = h*h + k*k - r*r;
-            
-            let wrong1 = 'x^2 + y^2';
-            if (g1 !== 0) wrong1 += g1 > 0 ? ` + ${g1*2}x` : ` - ${Math.abs(g1*2)}x`;
-            if (f1 !== 0) wrong1 += f1 > 0 ? ` + ${f1*2}y` : ` - ${Math.abs(f1*2)}y`;
-            if (c1 !== 0) wrong1 += c1 > 0 ? ` + ${c1}` : ` - ${Math.abs(c1)}`;
-            wrong1 += ' = 0';
-            wrongAnswers.push(wrong1);
-            
-            // 錯誤2：係數計算錯誤（忘記乘2）
-            const g2 = -h;
-            const f2 = -k;
-            const c2 = h*h + k*k - r*r;
-            
-            let wrong2 = 'x^2 + y^2';
-            if (g2 !== 0) wrong2 += g2 > 0 ? ` + ${g2}x` : ` - ${Math.abs(g2)}x`; // 忘記乘2
-            if (f2 !== 0) wrong2 += f2 > 0 ? ` + ${f2}y` : ` - ${Math.abs(f2)}y`; // 忘記乘2
-            if (c2 !== 0) wrong2 += c2 > 0 ? ` + ${c2}` : ` - ${Math.abs(c2)}`;
-            wrong2 += ' = 0';
-            wrongAnswers.push(wrong2);
-            
-            // 錯誤3：常數項計算錯誤
-            const g3 = -h;
-            const f3 = -k;
-            const c3 = h*h + k*k + r*r; // 加號而非減號
-            
-            let wrong3 = 'x^2 + y^2';
-            if (g3 !== 0) wrong3 += g3 > 0 ? ` + ${g3*2}x` : ` - ${Math.abs(g3*2)}x`;
-            if (f3 !== 0) wrong3 += f3 > 0 ? ` + ${f3*2}y` : ` - ${Math.abs(f3*2)}y`;
-            if (c3 !== 0) wrong3 += c3 > 0 ? ` + ${c3}` : ` - ${Math.abs(c3)}`;
-            wrong3 += ' = 0';
-            wrongAnswers.push(wrong3);
+        // 計算一般形式的係數
+        const g = -h;
+        const f = -k;
+        const c = h*h + k*k - r*r;
+        
+        // 構建方程
+        let equation = 'x^{2} + y^{2}';
+        
+        if (g !== 0) {
+            equation += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
         }
         
-        return wrongAnswers;
+        if (f !== 0) {
+            equation += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
+        }
+        
+        if (c !== 0) {
+            equation += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+        }
+        
+        equation += ' = 0';
+        
+        return equation;
     }
 
     // 生成解釋
@@ -369,6 +364,71 @@ export default class CircleEquationGenerator extends QuestionGenerator {
         return questionText;
     }
 
+    // 生成錯誤答案
+    private generateWrongAnswers(data: CircleData): string[] {
+        const wrongAnswers: string[] = [];
+        const h = data.centerX;
+        const k = data.centerY;
+        const r = data.radius;
+        
+        if (data.questionType === 'standard') {
+            // 錯誤1：半徑和平方混淆
+            const wrong1 = h === 0 ? `x^{2}` : h > 0 ? `(x-${h})^{2}` : `(x+${Math.abs(h)})^{2}`;
+            const wrong1y = k === 0 ? `y^{2}` : k > 0 ? `(y-${k})^{2}` : `(y+${Math.abs(k)})^{2}`;
+            wrongAnswers.push(`${wrong1} + ${wrong1y} = ${r}`);
+            
+            // 錯誤2：圓心坐標符號錯誤
+            const wrong2 = h === 0 ? `x^{2}` : h > 0 ? `(x+${h})^{2}` : `(x-${Math.abs(h)})^{2}`;
+            const wrong2y = k === 0 ? `y^{2}` : k > 0 ? `(y+${k})^{2}` : `(y-${Math.abs(k)})^{2}`;
+            wrongAnswers.push(`${wrong2} + ${wrong2y} = ${r*r}`);
+            
+            // 錯誤3：圓心和半徑混淆
+            const wrong3 = r === 0 ? `x^{2}` : r > 0 ? `(x-${r})^{2}` : `(x+${Math.abs(r)})^{2}`;
+            const wrong3y = r === 0 ? `y^{2}` : r > 0 ? `(y-${r})^{2}` : `(y+${Math.abs(r)})^{2}`;
+            wrongAnswers.push(`${wrong3} + ${wrong3y} = ${h*h + k*k}`);
+        } else {
+            // 一般形式的錯誤
+            
+            // 錯誤1：係數符號錯誤
+            const g1 = h; // 錯誤的符號
+            const f1 = -k;
+            const c1 = h*h + k*k - r*r;
+            
+            let wrong1 = 'x^{2} + y^{2}';
+            if (g1 !== 0) wrong1 += g1 > 0 ? ` + ${g1*2}x` : ` - ${Math.abs(g1*2)}x`;
+            if (f1 !== 0) wrong1 += f1 > 0 ? ` + ${f1*2}y` : ` - ${Math.abs(f1*2)}y`;
+            if (c1 !== 0) wrong1 += c1 > 0 ? ` + ${c1}` : ` - ${Math.abs(c1)}`;
+            wrong1 += ' = 0';
+            wrongAnswers.push(wrong1);
+            
+            // 錯誤2：係數計算錯誤（忘記乘2）
+            const g2 = -h;
+            const f2 = -k;
+            const c2 = h*h + k*k - r*r;
+            
+            let wrong2 = 'x^{2} + y^{2}';
+            if (g2 !== 0) wrong2 += g2 > 0 ? ` + ${g2}x` : ` - ${Math.abs(g2)}x`; // 忘記乘2
+            if (f2 !== 0) wrong2 += f2 > 0 ? ` + ${f2}y` : ` - ${Math.abs(f2)}y`; // 忘記乘2
+            if (c2 !== 0) wrong2 += c2 > 0 ? ` + ${c2}` : ` - ${Math.abs(c2)}`;
+            wrong2 += ' = 0';
+            wrongAnswers.push(wrong2);
+            
+            // 錯誤3：常數項計算錯誤
+            const g3 = -h;
+            const f3 = -k;
+            const c3 = h*h + k*k + r*r; // 加號而非減號
+            
+            let wrong3 = 'x^{2} + y^{2}';
+            if (g3 !== 0) wrong3 += g3 > 0 ? ` + ${g3*2}x` : ` - ${Math.abs(g3*2)}x`;
+            if (f3 !== 0) wrong3 += f3 > 0 ? ` + ${f3*2}y` : ` - ${Math.abs(f3*2)}y`;
+            if (c3 !== 0) wrong3 += c3 > 0 ? ` + ${c3}` : ` - ${Math.abs(c3)}`;
+            wrong3 += ' = 0';
+            wrongAnswers.push(wrong3);
+        }
+        
+        return wrongAnswers;
+    }
+
     // 主要生成方法
     generate(): IGeneratorOutput {
         // 生成題目組合
@@ -377,11 +437,11 @@ export default class CircleEquationGenerator extends QuestionGenerator {
         // 構建問題文本
         const questionText = this.generateQuestionText(circleData);
         
-        // 格式化正確答案
-        const correctAnswer = this.formatEquation(circleData);
+        // 格式化正確答案並包裝為LaTeX格式
+        const correctAnswer = this.wrapWithLatex(this.formatEquation(circleData));
         
-        // 生成錯誤答案
-        const wrongAnswers = this.generateWrongAnswers(circleData);
+        // 生成錯誤答案並包裝為LaTeX格式
+        const wrongAnswers = this.generateWrongAnswers(circleData).map(answer => this.wrapWithLatex(answer));
         
         // 生成解釋
         const explanation = this.generateExplanation(circleData);
@@ -396,6 +456,12 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                 latex: true
             }
         };
+    }
+
+    // 將方程式包裝為LaTeX格式
+    private wrapWithLatex(equation: string): string {
+        // 把方程式包在LaTeX數學模式環境中
+        return `\\(${equation}\\)`;
     }
 
     // 工具方法：隨機選擇數組元素
