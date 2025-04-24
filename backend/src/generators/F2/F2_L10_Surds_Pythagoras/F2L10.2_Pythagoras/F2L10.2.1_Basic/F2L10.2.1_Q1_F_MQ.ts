@@ -257,30 +257,73 @@ export default class PythagorasBasicGenerator extends QuestionGenerator {
 
     // 生成问题文本
     private generateQuestionText(data: TriangleData): string {
-        // 创建更大更清晰的SVG
+        // 随机决定三角形的变化类型
+        const variationType = Math.floor(Math.random() * 4); // 0-3的随机数
+        
+        // 根据变化类型生成不同的三角形
+        let trianglePoints, rightAnglePos, side1LabelPos, side2LabelPos, hypoLabelPos;
+        
+        switch (variationType) {
+            case 0: // 标准右下角直角
+                trianglePoints = "100,200 300,200 100,50";
+                rightAnglePos = "M 120,200 L 120,180 L 100,180";
+                side1LabelPos = { x: 200, y: 225 };
+                side2LabelPos = { x: 75, y: 125 };
+                hypoLabelPos = { x: 210, y: 110 };
+                break;
+            case 1: // 右上角直角
+                trianglePoints = "100,50 300,50 300,200";
+                rightAnglePos = "M 300,70 L 280,70 L 280,50";
+                side1LabelPos = { x: 200, y: 35 };
+                side2LabelPos = { x: 325, y: 125 };
+                hypoLabelPos = { x: 190, y: 140 };
+                break;
+            case 2: // 左上角直角
+                trianglePoints = "100,50 300,200 100,200";
+                rightAnglePos = "M 100,70 L 120,70 L 120,50";
+                side1LabelPos = { x: 200, y: 225 };
+                side2LabelPos = { x: 75, y: 125 };
+                hypoLabelPos = { x: 210, y: 110 };
+                break;
+            case 3: // 左下角直角（更宽的三角形）
+                trianglePoints = "100,200 350,200 100,100";
+                rightAnglePos = "M 120,200 L 120,180 L 100,180";
+                side1LabelPos = { x: 225, y: 225 };
+                side2LabelPos = { x: 75, y: 150 };
+                hypoLabelPos = { x: 235, y: 135 };
+                break;
+            default: // 默认情况
+                trianglePoints = "100,200 300,200 100,50";
+                rightAnglePos = "M 120,200 L 120,180 L 100,180";
+                side1LabelPos = { x: 200, y: 225 };
+                side2LabelPos = { x: 75, y: 125 };
+                hypoLabelPos = { x: 210, y: 110 };
+        }
+        
+        // 创建SVG内容
         const svgContent = `
         <div style="text-align: center; margin: 20px 0;">
-        <svg width="400" height="300" viewBox="0 0 400 300" style="background: white;">
+        <svg width="400" height="300" viewBox="0 0 400 300">
             <!-- 绘制三角形 -->
-            <polygon points="100,200 300,200 100,50" 
+            <polygon points="${trianglePoints}" 
                   fill="none" stroke="black" stroke-width="2"/>
             
             <!-- 绘制直角标记 -->
-            <path d="M 120,200 L 120,180 L 100,180" 
+            <path d="${rightAnglePos}" 
                   fill="none" stroke="black" stroke-width="1.5"/>
             
             <!-- 添加边长标签 -->
             ${data.unknownSide !== 1 ? 
-                `<text x="200" y="225" text-anchor="middle" style="font-size: 18px;">${data.side1} cm</text>` : 
-                `<text x="200" y="225" text-anchor="middle" style="font-size: 18px; font-weight: bold;">x</text>`}
+                `<text x="${side1LabelPos.x}" y="${side1LabelPos.y}" text-anchor="middle" font-family="Arial" font-size="18px">${data.side1} cm</text>` : 
+                `<text x="${side1LabelPos.x}" y="${side1LabelPos.y}" text-anchor="middle" font-family="Arial" font-size="18px" font-weight="bold">x</text>`}
             
             ${data.unknownSide !== 2 ? 
-                `<text x="75" y="125" text-anchor="middle" style="font-size: 18px;">${data.side2} cm</text>` : 
-                `<text x="75" y="125" text-anchor="middle" style="font-size: 18px; font-weight: bold;">x</text>`}
+                `<text x="${side2LabelPos.x}" y="${side2LabelPos.y}" text-anchor="middle" font-family="Arial" font-size="18px">${data.side2} cm</text>` : 
+                `<text x="${side2LabelPos.x}" y="${side2LabelPos.y}" text-anchor="middle" font-family="Arial" font-size="18px" font-weight="bold">x</text>`}
             
             ${data.unknownSide !== 3 ? 
-                `<text x="210" y="110" text-anchor="middle" style="font-size: 18px;">${data.hypotenuse} cm</text>` : 
-                `<text x="210" y="110" text-anchor="middle" style="font-size: 18px; font-weight: bold;">x</text>`}
+                `<text x="${hypoLabelPos.x}" y="${hypoLabelPos.y}" text-anchor="middle" font-family="Arial" font-size="18px">${data.hypotenuse} cm</text>` : 
+                `<text x="${hypoLabelPos.x}" y="${hypoLabelPos.y}" text-anchor="middle" font-family="Arial" font-size="18px" font-weight="bold">x</text>`}
         </svg>
         </div>
         `;
