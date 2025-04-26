@@ -105,7 +105,7 @@ export default class FindCircleCenterRadiusGenerator extends QuestionGenerator {
         const radius = getRandomInt(this.RADIUS_RANGE.MEDIUM.MIN, this.RADIUS_RANGE.MEDIUM.MAX);
         
         // 決定是否使用係數形式（像(2x+6)²形式）
-        const useCoefficients = Math.random() < 0.6; // 60%的機率使用係數
+        const useCoefficients = Math.random() < 0.7; // 提高到70%的機率使用係數
         
         let equation = '';
         let actualCenterX = centerX;
@@ -113,7 +113,8 @@ export default class FindCircleCenterRadiusGenerator extends QuestionGenerator {
         
         if (useCoefficients) {
             // 選擇相同的係數，確保生成的是圓方程而非橢圓方程
-            const coef = getRandomInt(2, 3); // 兩個變數使用相同的係數
+            // 係數範圍從2到5，避免係數為1
+            const coef = getRandomInt(2, 5); // 擴大係數範圍
             
             // 計算常數項，使方程等價於標準圓方程
             const xConstant = -centerX * coef;
@@ -221,11 +222,12 @@ export default class FindCircleCenterRadiusGenerator extends QuestionGenerator {
         
         if (equationType === 'standard') {
             // 標準形式但有可能帶係數
-            const useCoefficients = Math.random() < 0.7; // 70%的機率使用係數
+            const useCoefficients = Math.random() < 0.8; // 提高到80%的機率使用係數
             
             if (useCoefficients) {
                 // 使用相同的係數確保生成圓方程而非橢圓方程
-                const coef = getRandomInt(2, 4);
+                // 係數範圍從2到5，避免係數為1
+                const coef = getRandomInt(2, 5);
                 
                 // 計算常數項，使方程等價於標準圓方程
                 const xConstant = -centerX * coef;
@@ -303,6 +305,7 @@ export default class FindCircleCenterRadiusGenerator extends QuestionGenerator {
             
         } else {
             // 複雜形式，加入係數（確保x^2和y^2有相同係數）
+            // 係數範圍從2到9，避免係數為1
             const a = getRandomInt(2, 9); // x^2和y^2的共同係數
             const g = -centerX;
             const f = -centerY;
