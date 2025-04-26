@@ -6,11 +6,11 @@ interface CircleData {
     centerX: number;     // 圓心 x 坐標
     centerY: number;     // 圓心 y 坐標
     radius: number;      // 半徑
-    passingPoint?: {     // 通過的點（難度4使用）
+    passingPoint?: {     // 通過的點（難度4和5使用）
         x: number;
         y: number;
     };
-    questionType: 'standard' | 'general'; // 標準形式或一般形式
+    questionType: 'standard' | 'general' | 'parametric'; // 標準形式、一般形式或一段式形式
 }
 
 export default class CircleEquationGenerator extends QuestionGenerator {
@@ -76,6 +76,8 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                 return this.generateLevel3Combination();
             case 4:
                 return this.generateLevel4Combination();
+            case 5:
+                return this.generateLevel5Combination();
             default:
                 return this.generateLevel1Combination();
         }
@@ -125,18 +127,46 @@ export default class CircleEquationGenerator extends QuestionGenerator {
 
     // 難度4：給定圓心和通過的點
     private generateLevel4Combination(): CircleData {
+        // 使用勾股數(畢達哥拉斯三元組)確保半徑為整數
+        const PYTHAGOREAN_TRIPLES: [number, number, number][] = [
+            [3, 4, 5],
+            [5, 12, 13],
+            [8, 15, 17],
+            [7, 24, 25],
+            [9, 40, 41],
+            [12, 35, 37],
+            [20, 21, 29],
+            [28, 45, 53],
+            [11, 60, 61]
+        ];
+        
+        // 隨機選擇一個三元組，第三個數作為半徑
+        const triple = PYTHAGOREAN_TRIPLES[Math.floor(Math.random() * PYTHAGOREAN_TRIPLES.length)];
+        const radius = triple[2]; // 第三個數是斜邊長度，將作為半徑
+        
+        // 生成圓心坐標
         const centerX = getRandomInt(this.COORDINATE_RANGE.HARD.MIN, this.COORDINATE_RANGE.HARD.MAX);
         const centerY = getRandomInt(this.COORDINATE_RANGE.HARD.MIN, this.COORDINATE_RANGE.HARD.MAX);
         
-        // 生成通過的點，確保與圓心不同
-        let pointX, pointY;
-        do {
-            pointX = getRandomInt(this.COORDINATE_RANGE.HARD.MIN, this.COORDINATE_RANGE.HARD.MAX);
-            pointY = getRandomInt(this.COORDINATE_RANGE.HARD.MIN, this.COORDINATE_RANGE.HARD.MAX);
-        } while (pointX === centerX && pointY === centerY);
+        // 使用勾股數計算通過點坐標
+        // 圓上任一點 = 圓心 + 向外的偏移量
+        // 使用勾股數的前兩個值作為偏移量的x和y分量
+        let offsetX = triple[0];
+        let offsetY = triple[1];
         
-        // 計算半徑（圓心到點的距離）
-        const radius = Math.sqrt(Math.pow(pointX - centerX, 2) + Math.pow(pointY - centerY, 2));
+        // 隨機決定偏移方向（正或負）
+        if (Math.random() < 0.5) offsetX = -offsetX;
+        if (Math.random() < 0.5) offsetY = -offsetY;
+        
+        const pointX = centerX + offsetX;
+        const pointY = centerY + offsetY;
+        
+        // 確保點在合理範圍內
+        if (pointX < this.COORDINATE_RANGE.HARD.MIN || pointX > this.COORDINATE_RANGE.HARD.MAX ||
+            pointY < this.COORDINATE_RANGE.HARD.MIN || pointY > this.COORDINATE_RANGE.HARD.MAX) {
+            // 如果超出範圍，遞歸重新生成
+            return this.generateLevel4Combination();
+        }
         
         // 隨機決定是標準形式還是一般形式
         const questionType = Math.random() < 0.5 ? 'standard' : 'general';
@@ -153,12 +183,70 @@ export default class CircleEquationGenerator extends QuestionGenerator {
         };
     }
 
+    // 難度5：給定圓心和通過的點，以一般形式表示
+    private generateLevel5Combination(): CircleData {
+        // 使用勾股數(畢達哥拉斯三元組)確保半徑為整數
+        const PYTHAGOREAN_TRIPLES: [number, number, number][] = [
+            [3, 4, 5],
+            [5, 12, 13],
+            [8, 15, 17],
+            [7, 24, 25],
+            [9, 40, 41],
+            [12, 35, 37],
+            [20, 21, 29],
+            [28, 45, 53],
+            [11, 60, 61]
+        ];
+        
+        // 隨機選擇一個三元組，第三個數作為半徑
+        const triple = PYTHAGOREAN_TRIPLES[Math.floor(Math.random() * PYTHAGOREAN_TRIPLES.length)];
+        const radius = triple[2]; // 第三個數是斜邊長度，將作為半徑
+        
+        // 生成圓心坐標
+        const centerX = getRandomInt(this.COORDINATE_RANGE.HARD.MIN, this.COORDINATE_RANGE.HARD.MAX);
+        const centerY = getRandomInt(this.COORDINATE_RANGE.HARD.MIN, this.COORDINATE_RANGE.HARD.MAX);
+        
+        // 使用勾股數計算通過點坐標
+        // 圓上任一點 = 圓心 + 向外的偏移量
+        // 使用勾股數的前兩個值作為偏移量的x和y分量
+        let offsetX = triple[0];
+        let offsetY = triple[1];
+        
+        // 隨機決定偏移方向（正或負）
+        if (Math.random() < 0.5) offsetX = -offsetX;
+        if (Math.random() < 0.5) offsetY = -offsetY;
+        
+        const pointX = centerX + offsetX;
+        const pointY = centerY + offsetY;
+        
+        // 確保點在合理範圍內
+        if (pointX < this.COORDINATE_RANGE.HARD.MIN || pointX > this.COORDINATE_RANGE.HARD.MAX ||
+            pointY < this.COORDINATE_RANGE.HARD.MIN || pointY > this.COORDINATE_RANGE.HARD.MAX) {
+            // 如果超出範圍，遞歸重新生成
+            return this.generateLevel5Combination();
+        }
+        
+        // 難度5與難度4相似，但僅使用一般形式
+        return {
+            centerX,
+            centerY,
+            radius,
+            passingPoint: {
+                x: pointX,
+                y: pointY
+            },
+            questionType: 'general'
+        };
+    }
+
     // 格式化答案的輔助方法
     private formatEquation(data: CircleData): string {
         if (data.questionType === 'standard') {
             return this.formatStandardEquationLatex(data);
-        } else {
+        } else if (data.questionType === 'general') {
             return this.formatGeneralEquationLatex(data);
+        } else {
+            return this.formatParametricEquationLatex(data);
         }
     }
 
@@ -222,24 +310,38 @@ export default class CircleEquationGenerator extends QuestionGenerator {
         return equation;
     }
 
+    // 生成一段式形式圓方程（直接生成LaTeX格式）
+    private formatParametricEquationLatex(data: CircleData): string {
+        const h = data.centerX;
+        const k = data.centerY;
+        const r = data.radius;
+        
+        return `x = ${h} + ${r}\\cos t, \\; y = ${k} + ${r}\\sin t, \\; 0 \\leq t < 2\\pi`;
+    }
+
     // 生成問題文本
     private generateQuestionText(data: CircleData): string {
         let questionText = '';
         
         if (data.passingPoint) {
-            // 難度4：給定圓心和通過的點
+            // 難度4和5：給定圓心和通過的點
             questionText = `求圓的方程式，已知圓心 C(${data.centerX}, ${data.centerY}) 且通過點 P(${data.passingPoint.x}, ${data.passingPoint.y})`;
             if (data.questionType === 'standard') {
                 questionText += `，以標準形式表示。`;
-            } else {
+            } else if (data.questionType === 'general') {
                 questionText += `，以一般形式表示。`;
+            } else {
+                questionText += `，以一段式形式表示。`;
             }
         } else if (data.questionType === 'standard') {
             // 難度1或2：標準形式
             questionText = `求圓的方程式，已知圓心 = (${data.centerX}, ${data.centerY})，半徑 = ${data.radius}，以標準形式表示。`;
-        } else {
+        } else if (data.questionType === 'general') {
             // 難度3：一般形式
             questionText = `求圓的方程式，已知圓心 = (${data.centerX}, ${data.centerY})，半徑 = ${data.radius}，以一般形式表示。`;
+        } else {
+            // 難度5：一段式形式
+            questionText = `求圓的方程式，已知圓心 = (${data.centerX}, ${data.centerY})，半徑 = ${data.radius}，以一段式形式表示。`;
         }
         
         return questionText;
@@ -267,7 +369,7 @@ export default class CircleEquationGenerator extends QuestionGenerator {
             const wrong3 = r === 0 ? `x^{2}` : r > 0 ? `(x-${r})^{2}` : `(x+${Math.abs(r)})^{2}`;
             const wrong3y = r === 0 ? `y^{2}` : r > 0 ? `(y-${r})^{2}` : `(y+${Math.abs(r)})^{2}`;
             wrongAnswers.push(`${wrong3} + ${wrong3y} = ${h*h + k*k}`);
-        } else {
+        } else if (data.questionType === 'general') {
             // 一般形式的錯誤
             
             // 錯誤1：係數符號錯誤
@@ -305,6 +407,20 @@ export default class CircleEquationGenerator extends QuestionGenerator {
             if (c3 !== 0) wrong3 += c3 > 0 ? ` + ${c3}` : ` - ${Math.abs(c3)}`;
             wrong3 += ' = 0';
             wrongAnswers.push(wrong3);
+        } else {
+            // 一段式形式的錯誤
+            
+            // 錯誤1：圓心坐標符號錯誤
+            const wrong1 = `x = ${-h} + ${r}\\cos t, \\; y = ${k} + ${r}\\sin t, \\; 0 \\leq t < 2\\pi`;
+            wrongAnswers.push(wrong1);
+            
+            // 錯誤2：半徑值錯誤
+            const wrong2 = `x = ${h} + ${r+1}\\cos t, \\; y = ${k} + ${r+1}\\sin t, \\; 0 \\leq t < 2\\pi`;
+            wrongAnswers.push(wrong2);
+            
+            // 錯誤3：使用sin和cos反了
+            const wrong3 = `x = ${h} + ${r}\\sin t, \\; y = ${k} + ${r}\\cos t, \\; 0 \\leq t < 2\\pi`;
+            wrongAnswers.push(wrong3);
         }
         
         return wrongAnswers;
@@ -315,7 +431,7 @@ export default class CircleEquationGenerator extends QuestionGenerator {
         let explanation = '';
         
         if (data.passingPoint) {
-            // 難度4：給定圓心和通過的點
+            // 難度4和5：給定圓心和通過的點
             explanation = `解題步驟：<br><br>`;
             explanation += `1. 已知條件：<br>`;
             explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}<br>`;
@@ -324,16 +440,23 @@ export default class CircleEquationGenerator extends QuestionGenerator {
             explanation += `2. 計算半徑：<br>`;
             explanation += `   - 半徑等於圓心到點P的距離<br>`;
             explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{(${data.passingPoint.x} - ${data.centerX})^2 + (${data.passingPoint.y} - ${data.centerY})^2}`)}<br>`;
-            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{${Math.pow(data.passingPoint.x - data.centerX, 2)} + ${Math.pow(data.passingPoint.y - data.centerY, 2)}}`)}<br>`;
-            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{${Math.pow(data.passingPoint.x - data.centerX, 2) + Math.pow(data.passingPoint.y - data.centerY, 2)}}`)}<br>`;
-            explanation += `   - ${this.wrapWithLatex(`r = ${data.radius.toFixed(2)}`)}<br><br>`;
+            
+            // 計算差值，避免顯示負數的平方
+            const xDiff = data.passingPoint.x - data.centerX;
+            const yDiff = data.passingPoint.y - data.centerY;
+            const xDiffSquared = xDiff * xDiff;
+            const yDiffSquared = yDiff * yDiff;
+            
+            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{${xDiffSquared} + ${yDiffSquared}}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`r = \\sqrt{${xDiffSquared + yDiffSquared}}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`r = ${data.radius}`)}<br><br>`;
             
             if (data.questionType === 'standard') {
                 // 標準形式
                 explanation += `3. 代入標準形式方程：<br>`;
                 explanation += `   - 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}<br>`;
                 explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑<br>`;
-                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius.toFixed(2)}`)}<br><br>`;
+                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br><br>`;
                 
                 let xTerm = '';
                 if (data.centerX === 0) {
@@ -353,22 +476,28 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                     yTerm = `(y+${Math.abs(data.centerY)})^2`;
                 }
                 
-                explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${Math.pow(data.radius, 2).toFixed(2)}`)}<br>`;
-            } else {
+                explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${Math.pow(data.radius, 2)}`)}<br>`;
+            } else if (data.questionType === 'general') {
                 // 一般形式
                 explanation += `3. 轉換為一般形式方程：<br>`;
                 explanation += `   - 圓的一般形式方程為 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}<br>`;
                 explanation += `   - 其中 ${this.wrapWithLatex(`g=-h, f=-k, c=h^2+k^2-r^2`)}<br>`;
-                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius.toFixed(2)}`)}<br>`;
-                explanation += `   - ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius.toFixed(2)}^2`)}<br>`;
-                explanation += `   - ${this.wrapWithLatex(`c = ${Math.pow(data.centerX, 2)} + ${Math.pow(data.centerY, 2)} - ${Math.pow(data.radius, 2).toFixed(2)}`)}<br>`;
-                explanation += `   - ${this.wrapWithLatex(`c = ${Math.pow(data.centerX, 2) + Math.pow(data.centerY, 2) - Math.pow(data.radius, 2)}`)}<br><br>`;
+                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br>`;
+                explanation += `   - ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius}^2`)}<br>`;
+                
+                // 計算係數
+                const h2 = Math.pow(data.centerX, 2);
+                const k2 = Math.pow(data.centerY, 2);
+                const r2 = Math.pow(data.radius, 2);
+                
+                explanation += `   - ${this.wrapWithLatex(`c = ${h2} + ${k2} - ${r2}`)}<br>`;
+                explanation += `   - ${this.wrapWithLatex(`c = ${h2 + k2 - r2}`)}<br><br>`;
                 
                 // 構建方程
                 let equation = 'x^2 + y^2';
                 const g = -data.centerX;
                 const f = -data.centerY;
-                const c = Math.pow(data.centerX, 2) + Math.pow(data.centerY, 2) - Math.pow(data.radius, 2);
+                const c = h2 + k2 - r2;
                 
                 if (g !== 0) {
                     equation += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
@@ -379,12 +508,27 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                 }
                 
                 if (c !== 0) {
-                    equation += c > 0 ? ` + ${c.toFixed(2)}` : ` - ${Math.abs(c).toFixed(2)}`;
+                    equation += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
                 }
                 
                 equation += ' = 0';
                 
                 explanation += `   - 方程為 ${this.wrapWithLatex(`${equation}`)}<br>`;
+            } else {
+                // 一段式形式
+                explanation += `3. 轉換為一段式形式：<br>`;
+                explanation += `   - 圓的一段式形式為 ${this.wrapWithLatex(`x = h + r\\cos t, \\; y = k + r\\sin t, \\; 0 \\leq t < 2\\pi`)}<br>`;
+                explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑，${this.wrapWithLatex(`t`)} 是參數<br>`;
+                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br><br>`;
+                
+                explanation += `   - 方程為 ${this.wrapWithLatex(`x = ${data.centerX} + ${data.radius}\\cos t, \\; y = ${data.centerY} + ${data.radius}\\sin t, \\; 0 \\leq t < 2\\pi`)}<br>`;
+                
+                explanation += `<br>4. 一段式參數的幾何意義：<br>`;
+                explanation += `   - 參數 ${this.wrapWithLatex(`t`)} 代表圓上點與圓心的連線與正x軸的夾角<br>`;
+                explanation += `   - 當 ${this.wrapWithLatex(`t=0`)} 時，點在 ${this.wrapWithLatex(`(${data.centerX + data.radius}, ${data.centerY})`)}<br>`;
+                explanation += `   - 當 ${this.wrapWithLatex(`t=\\frac{\\pi}{2}`)} 時，點在 ${this.wrapWithLatex(`(${data.centerX}, ${data.centerY + data.radius})`)}<br>`;
+                explanation += `   - 當 ${this.wrapWithLatex(`t=\\pi`)} 時，點在 ${this.wrapWithLatex(`(${data.centerX - data.radius}, ${data.centerY})`)}<br>`;
+                explanation += `   - 當 ${this.wrapWithLatex(`t=\\frac{3\\pi}{2}`)} 時，點在 ${this.wrapWithLatex(`(${data.centerX}, ${data.centerY - data.radius})`)}<br>`;
             }
         } else if (data.questionType === 'standard') {
             // 難度1或2：標準形式
@@ -419,7 +563,7 @@ export default class CircleEquationGenerator extends QuestionGenerator {
             }
             
             explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${data.radius * data.radius}`)}<br>`;
-        } else {
+        } else if (data.questionType === 'general') {
             // 難度3：一般形式（從標準形式展開）
             explanation = `解題步驟：<br><br>`;
             explanation += `1. 已知條件：<br>`;
@@ -519,6 +663,30 @@ export default class CircleEquationGenerator extends QuestionGenerator {
             explanation += `   - 整理得到一般形式：${this.wrapWithLatex(finalEquation)}<br><br>`;
             
             explanation += `   - 最終方程為：${this.wrapWithLatex(finalEquation)}<br>`;
+        } else {
+            // 難度5：一段式形式
+            explanation = `解題步驟：<br><br>`;
+            explanation += `1. 已知條件：<br>`;
+            explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}<br>`;
+            explanation += `   - 半徑 ${this.wrapWithLatex(`r = ${data.radius}`)}<br><br>`;
+            
+            explanation += `2. 圓的一段式方程：<br>`;
+            explanation += `   - 圓的一段式形式為 ${this.wrapWithLatex(`x = h + r\\cos t, \\; y = k + r\\sin t, \\; 0 \\leq t < 2\\pi`)}<br>`;
+            explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑，${this.wrapWithLatex(`t`)} 是參數<br><br>`;
+            
+            explanation += `3. 代入已知條件：<br>`;
+            explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`x = ${data.centerX} + ${data.radius}\\cos t`)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`y = ${data.centerY} + ${data.radius}\\sin t`)}<br><br>`;
+            
+            explanation += `4. 一段式參數的幾何意義：<br>`;
+            explanation += `   - 參數 ${this.wrapWithLatex(`t`)} 代表圓上點與圓心的連線與正x軸的夾角<br>`;
+            explanation += `   - 當 ${this.wrapWithLatex(`t=0`)} 時，點在 ${this.wrapWithLatex(`(${data.centerX + data.radius}, ${data.centerY})`)}<br>`;
+            explanation += `   - 當 ${this.wrapWithLatex(`t=\\frac{\\pi}{2}`)} 時，點在 ${this.wrapWithLatex(`(${data.centerX}, ${data.centerY + data.radius})`)}<br>`;
+            explanation += `   - 當 ${this.wrapWithLatex(`t=\\pi`)} 時，點在 ${this.wrapWithLatex(`(${data.centerX - data.radius}, ${data.centerY})`)}<br>`;
+            explanation += `   - 當 ${this.wrapWithLatex(`t=\\frac{3\\pi}{2}`)} 時，點在 ${this.wrapWithLatex(`(${data.centerX}, ${data.centerY - data.radius})`)}<br><br>`;
+            
+            explanation += `   - 最終方程為： ${this.wrapWithLatex(`x = ${data.centerX} + ${data.radius}\\cos t, \\; y = ${data.centerY} + ${data.radius}\\sin t, \\; 0 \\leq t < 2\\pi`)}<br>`;
         }
         
         return explanation;
