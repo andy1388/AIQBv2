@@ -132,24 +132,60 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         };
     }
 
-    // 難度2（現在是原難度1）：從直徑端點求圓方程（簡單整數坐標）
+    // 難度2：已知圓的直徑端點，求圓方程，使用較複雜的整數坐標
     private generateLevel2Combination(): PointsToCircleData {
-        // 從預設問題中隨機選擇一個
-        const randomProblem = this.getRandomElement(this.PREDEFINED_PROBLEMS.DIAMETER_EASY);
-        const pointA = randomProblem.points[0];
-        const pointB = randomProblem.points[1];
+        // 生成兩個端點作為直徑
+        const pointA = {
+            x: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX),
+            y: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX)
+        };
         
-        // 計算圓心（直徑中點）
-        const centerX = (pointA.x + pointB.x) / 2;
-        const centerY = (pointA.y + pointB.y) / 2;
+        const pointB = {
+            x: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX),
+            y: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX)
+        };
         
-        // 計算半徑（中點到端點的距離）
+        // 確保兩點不重合
+        while (pointA.x === pointB.x && pointA.y === pointB.y) {
+            pointB.x = getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX);
+            pointB.y = getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX);
+        }
+        
+        // 先計算直徑的中點作為基準點
+        const baseX = (pointA.x + pointB.x) / 2;
+        const baseY = (pointA.y + pointB.y) / 2;
+        
+        // 添加隨機整數偏移（-3到3之間）
+        let offsetX = getRandomInt(-3, 3);
+        let offsetY = getRandomInt(-3, 3);
+        
+        // 確保至少有一個偏移不為0，避免圓心與直徑中點相同
+        if (offsetX === 0 && offsetY === 0) {
+            const randomOffset = getRandomInt(1, 3) * (Math.random() < 0.5 ? -1 : 1);
+            if (Math.random() < 0.5) {
+                offsetX = randomOffset;
+            } else {
+                offsetY = randomOffset;
+            }
+        }
+        
+        // 圓心為基準點加上偏移
+        const centerX = baseX + offsetX;
+        const centerY = baseY + offsetY;
+        
+        // 確保圓心不是(0,0)
+        if (centerX === 0 && centerY === 0) {
+            return this.generateLevel2Combination();
+        }
+        
+        // 半徑等於圓心到任一點的距離
         const radius = Math.sqrt(
             Math.pow(centerX - pointA.x, 2) + Math.pow(centerY - pointA.y, 2)
         );
         
-        // 生成標準形式的圓方程
-        const equation = this.generateCircleEquation(centerX, centerY, radius);
+        // 生成圓方程
+        const equationType = Math.random() < 0.5 ? 'standard' : 'general';
+        const equation = this.generateCircleEquation(centerX, centerY, radius, equationType);
         
         return {
             points: [pointA, pointB],
@@ -157,7 +193,7 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             centerY,
             radius,
             equation,
-            equationType: Math.random() > 0.5 ? 'standard' : 'general',
+            equationType,
             problemType: 'diameter'
         };
     }
@@ -284,7 +320,12 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         const pointsText = data.points.map((p, i) => `${pointLabels[i]}(${p.x}, ${p.y})`).join(' 和 ');
         
         if (data.problemType === 'diameter') {
-            questionText = `如果 ${pointsText} 是圓的直徑端點，求此圓的方程。`;
+            // 如果是難度2，提法需要修改，因為圓心不再是直徑中點
+            if (this.difficulty === 2) {
+                questionText = `已知圓通過點 ${data.points.map((p, i) => `${pointLabels[i]}(${p.x}, ${p.y})`).join(' 和 ')}，且圓心在 (${data.centerX}, ${data.centerY})，求此圓的方程。`;
+            } else {
+                questionText = `如果 ${pointsText} 是圓的直徑端點，求此圓的方程。`;
+            }
         } else if (data.problemType === 'three_points') {
             questionText = `求過點 ${pointsText} 的圓方程。`;
         } else if (data.problemType === 'right_triangle') {
@@ -332,31 +373,59 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         const radiusSquared = Math.round(data.radius * data.radius);
         
         if (data.problemType === 'diameter') {
-            explanation += `1. 給定兩點 ${pointsText[0]} 和 ${pointsText[1]} 是圓的直徑端點。<br><br>`;
-            explanation += `2. 根據圓的性質，直徑的中點就是圓心。因此圓心坐標為：<br>`;
-            explanation += `   ${this.wrapWithLatex(`(h, k) = (\\frac{${data.points[0].x} + ${data.points[1].x}}{2}, \\frac{${data.points[0].y} + ${data.points[1].y}}{2}) = (${data.centerX}, ${data.centerY})`)}<br><br>`;
-            
-            // 顯示半徑計算
-            if (Number.isInteger(data.radius)) {
-                explanation += `3. 圓的半徑等於圓心到直徑端點的距離：<br>`;
-                explanation += `   ${this.wrapWithLatex(`r = \\sqrt{(${data.centerX} - ${data.points[0].x})^2 + (${data.centerY} - ${data.points[0].y})^2} = ${data.radius}`)}<br><br>`;
-            } else {
-                explanation += `3. 圓的半徑等於圓心到直徑端點的距離：<br>`;
-                explanation += `   ${this.wrapWithLatex(`r = \\sqrt{(${data.centerX} - ${data.points[0].x})^2 + (${data.centerY} - ${data.points[0].y})^2} = \\sqrt{${radiusSquared}}`)}<br><br>`;
-            }
-            
-            if (data.equationType === 'standard') {
-                explanation += `4. 將圓心坐標和半徑代入圓的標準方程 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}：<br>`;
-                explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br><br>`;
+            // 調整難度2的解釋
+            if (this.difficulty === 2) {
+                explanation += `1. 給定圓通過點 ${pointsText[0]} 和 ${pointsText[1]}，且圓心在 (${data.centerX}, ${data.centerY})。<br><br>`;
                 
-                explanation += `5. 整理得到最終圓方程：<br>`;
-                explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
-            } else {
-                explanation += `4. 將圓心坐標和半徑代入圓的一般方程 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}，其中 ${this.wrapWithLatex(`g = -h, f = -k, c = h^2 + k^2 - r^2`)}：<br>`;
-                explanation += `   ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${radiusSquared} = ${Math.round(data.centerX*data.centerX + data.centerY*data.centerY - radiusSquared)}`)}<br><br>`;
+                // 顯示半徑計算
+                if (Number.isInteger(data.radius)) {
+                    explanation += `2. 圓的半徑等於圓心到任一給定點的距離：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`r = \\sqrt{(${data.centerX} - ${data.points[0].x})^2 + (${data.centerY} - ${data.points[0].y})^2} = ${data.radius}`)}<br><br>`;
+                } else {
+                    explanation += `2. 圓的半徑等於圓心到任一給定點的距離：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`r = \\sqrt{(${data.centerX} - ${data.points[0].x})^2 + (${data.centerY} - ${data.points[0].y})^2} = \\sqrt{${radiusSquared}}`)}<br><br>`;
+                }
                 
-                explanation += `5. 整理得到最終圓方程：<br>`;
-                explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                if (data.equationType === 'standard') {
+                    explanation += `3. 將圓心坐標和半徑代入圓的標準方程 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br><br>`;
+                    
+                    explanation += `4. 整理得到最終圓方程：<br>`;
+                    explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                } else {
+                    explanation += `3. 將圓心坐標和半徑代入圓的一般方程 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}，其中 ${this.wrapWithLatex(`g = -h, f = -k, c = h^2 + k^2 - r^2`)}：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${radiusSquared} = ${Math.round(data.centerX*data.centerX + data.centerY*data.centerY - radiusSquared)}`)}<br><br>`;
+                    
+                    explanation += `4. 整理得到最終圓方程：<br>`;
+                    explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                }
+            } else {
+                explanation += `1. 給定兩點 ${pointsText[0]} 和 ${pointsText[1]} 是圓的直徑端點。<br><br>`;
+                explanation += `2. 根據圓的性質，直徑的中點就是圓心。因此圓心坐標為：<br>`;
+                explanation += `   ${this.wrapWithLatex(`(h, k) = (\\frac{${data.points[0].x} + ${data.points[1].x}}{2}, \\frac{${data.points[0].y} + ${data.points[1].y}}{2}) = (${data.centerX}, ${data.centerY})`)}<br><br>`;
+                
+                // 顯示半徑計算
+                if (Number.isInteger(data.radius)) {
+                    explanation += `3. 圓的半徑等於圓心到直徑端點的距離：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`r = \\sqrt{(${data.centerX} - ${data.points[0].x})^2 + (${data.centerY} - ${data.points[0].y})^2} = ${data.radius}`)}<br><br>`;
+                } else {
+                    explanation += `3. 圓的半徑等於圓心到直徑端點的距離：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`r = \\sqrt{(${data.centerX} - ${data.points[0].x})^2 + (${data.centerY} - ${data.points[0].y})^2} = \\sqrt{${radiusSquared}}`)}<br><br>`;
+                }
+                
+                if (data.equationType === 'standard') {
+                    explanation += `4. 將圓心坐標和半徑代入圓的標準方程 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br><br>`;
+                    
+                    explanation += `5. 整理得到最終圓方程：<br>`;
+                    explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                } else {
+                    explanation += `4. 將圓心坐標和半徑代入圓的一般方程 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}，其中 ${this.wrapWithLatex(`g = -h, f = -k, c = h^2 + k^2 - r^2`)}：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${radiusSquared} = ${Math.round(data.centerX*data.centerX + data.centerY*data.centerY - radiusSquared)}`)}<br><br>`;
+                    
+                    explanation += `5. 整理得到最終圓方程：<br>`;
+                    explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                }
             }
         } else if (data.problemType === 'three_points') {
             explanation += `1. 給定三點 ${pointsText[0]}、${pointsText[1]} 和 ${pointsText[2]}。<br><br>`;
