@@ -1,5 +1,8 @@
-Generator ID: MC_Maker
-Description: 多选题生成器
+中文名
+英文名
+===================================
+
+Level number：(integer)
 
 功能概述：
 这是一个用于生成标准化多选题的工具。它可以：

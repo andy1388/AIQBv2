@@ -360,7 +360,7 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                 explanation += `   - 圓的一般形式方程為 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}<br>`;
                 explanation += `   - 其中 ${this.wrapWithLatex(`g=-h, f=-k, c=h^2+k^2-r^2`)}<br>`;
                 explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius.toFixed(2)}`)}<br>`;
-                explanation += `   - ${this.wrapWithLatex(`g = ${-data.centerX}, f = ${-data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius.toFixed(2)}^2`)}<br>`;
+                explanation += `   - ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius.toFixed(2)}^2`)}<br>`;
                 explanation += `   - ${this.wrapWithLatex(`c = ${Math.pow(data.centerX, 2)} + ${Math.pow(data.centerY, 2)} - ${Math.pow(data.radius, 2).toFixed(2)}`)}<br>`;
                 explanation += `   - ${this.wrapWithLatex(`c = ${Math.pow(data.centerX, 2) + Math.pow(data.centerY, 2) - Math.pow(data.radius, 2)}`)}<br><br>`;
                 
@@ -420,46 +420,105 @@ export default class CircleEquationGenerator extends QuestionGenerator {
             
             explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${data.radius * data.radius}`)}<br>`;
         } else {
-            // 難度3：一般形式
+            // 難度3：一般形式（從標準形式展開）
             explanation = `解題步驟：<br><br>`;
             explanation += `1. 已知條件：<br>`;
             explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}<br>`;
             explanation += `   - 半徑 ${this.wrapWithLatex(`r = ${data.radius}`)}<br><br>`;
             
-            explanation += `2. 圓的一般形式方程：<br>`;
-            explanation += `   - 圓的一般形式方程為 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}<br>`;
-            explanation += `   - 其中 ${this.wrapWithLatex(`g=-h, f=-k, c=h^2+k^2-r^2`)}<br><br>`;
+            explanation += `2. 圓的標準形式方程：<br>`;
+            explanation += `   - 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}<br>`;
+            explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br>`;
             
-            explanation += `3. 計算係數：<br>`;
-            explanation += `   - ${this.wrapWithLatex(`g = -h = -${data.centerX} = ${-data.centerX}`)}<br>`;
-            explanation += `   - ${this.wrapWithLatex(`f = -k = -${data.centerY} = ${-data.centerY}`)}<br>`;
-            explanation += `   - ${this.wrapWithLatex(`c = h^2 + k^2 - r^2 = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius}^2`)}<br>`;
-            explanation += `   - ${this.wrapWithLatex(`c = ${data.centerX * data.centerX} + ${data.centerY * data.centerY} - ${data.radius * data.radius}`)}<br>`;
-            explanation += `   - ${this.wrapWithLatex(`c = ${data.centerX * data.centerX + data.centerY * data.centerY - data.radius * data.radius}`)}<br><br>`;
+            // 生成標準形式方程
+            let xTermStandard = '';
+            if (data.centerX === 0) {
+                xTermStandard = 'x^2';
+            } else if (data.centerX > 0) {
+                xTermStandard = `(x-${data.centerX})^2`;
+            } else {
+                xTermStandard = `(x+${Math.abs(data.centerX)})^2`;
+            }
             
-            explanation += `4. 代入一般形式方程：<br>`;
+            let yTermStandard = '';
+            if (data.centerY === 0) {
+                yTermStandard = 'y^2';
+            } else if (data.centerY > 0) {
+                yTermStandard = `(y-${data.centerY})^2`;
+            } else {
+                yTermStandard = `(y+${Math.abs(data.centerY)})^2`;
+            }
             
-            // 構建方程
-            let equation = 'x^2 + y^2';
-            const g = -data.centerX;
-            const f = -data.centerY;
-            const c = data.centerX * data.centerX + data.centerY * data.centerY - data.radius * data.radius;
+            explanation += `   - ${this.wrapWithLatex(`${xTermStandard} + ${yTermStandard} = ${data.radius * data.radius}`)}<br><br>`;
             
+            explanation += `3. 展開標準形式方程並移項為一般形式：<br>`;
+            
+            // 定義係數
+            const h = data.centerX;
+            const k = data.centerY;
+            const r = data.radius;
+            const r2 = r * r;
+            const h2 = h * h;
+            const k2 = k * k;
+            
+            // 原始標準形式
+            explanation += `   - ${this.wrapWithLatex(`${xTermStandard} + ${yTermStandard} = ${r2}`)}<br>`;
+            
+            // 展開 x 項和 y 項
+            let expandedLeftSide = '';
+            
+            // x 項展開
+            if (h === 0) {
+                expandedLeftSide = 'x^2';
+            } else {
+                const xSign = h > 0 ? '-' : '+';
+                const absH = Math.abs(h);
+                explanation += `   - ${this.wrapWithLatex(`(x${xSign}${absH})^2 = x^2 ${xSign} 2 \\cdot ${absH} \\cdot x + ${absH}^2 = x^2 ${xSign} ${2*absH}x + ${h2}`)}<br>`;
+                expandedLeftSide = h > 0 ? `x^2 - ${2*h}x + ${h2}` : `x^2 + ${2*Math.abs(h)}x + ${h2}`;
+            }
+            
+            // y 項展開
+            let yExpansion = '';
+            if (k === 0) {
+                yExpansion = 'y^2';
+            } else {
+                const ySign = k > 0 ? '-' : '+';
+                const absK = Math.abs(k);
+                explanation += `   - ${this.wrapWithLatex(`(y${ySign}${absK})^2 = y^2 ${ySign} 2 \\cdot ${absK} \\cdot y + ${absK}^2 = y^2 ${ySign} ${2*absK}y + ${k2}`)}<br>`;
+                yExpansion = k > 0 ? `y^2 - ${2*k}y + ${k2}` : `y^2 + ${2*Math.abs(k)}y + ${k2}`;
+            }
+            
+            // 展開後的完整方程
+            const fullExpandedEquation = `${expandedLeftSide} + ${yExpansion} = ${r2}`;
+            explanation += `   - 展開後：${this.wrapWithLatex(fullExpandedEquation)}<br>`;
+            
+            // 將右側移項到左側
+            const afterMoving = `${expandedLeftSide} + ${yExpansion} - ${r2} = 0`;
+            explanation += `   - 將右側移項到左側：${this.wrapWithLatex(afterMoving)}<br>`;
+            
+            // 整理成標準的一般形式 x² + y² + 2gx + 2fy + c = 0
+            const g = -h;
+            const f = -k;
+            const c = h2 + k2 - r2;
+            
+            let finalEquation = `x^2 + y^2`;
             if (g !== 0) {
-                equation += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
+                finalEquation += g > 0 ? ` + ${2*g}x` : ` - ${Math.abs(2*g)}x`;
             }
             
             if (f !== 0) {
-                equation += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
+                finalEquation += f > 0 ? ` + ${2*f}y` : ` - ${Math.abs(2*f)}y`;
             }
             
             if (c !== 0) {
-                equation += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+                finalEquation += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
             }
             
-            equation += ' = 0';
+            finalEquation += ' = 0';
             
-            explanation += `   - 方程為 ${this.wrapWithLatex(`${equation}`)}<br>`;
+            explanation += `   - 整理得到一般形式：${this.wrapWithLatex(finalEquation)}<br><br>`;
+            
+            explanation += `   - 最終方程為：${this.wrapWithLatex(finalEquation)}<br>`;
         }
         
         return explanation;
