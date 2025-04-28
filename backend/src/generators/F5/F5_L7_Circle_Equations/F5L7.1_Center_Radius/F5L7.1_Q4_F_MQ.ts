@@ -584,7 +584,7 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             }
             
             // 步骤：利用圆心和半径，写出圆的标准方程
-            explanation += `7. 利用圓心和半徑，寫出圓的標準方程：<br>`;
+            explanation += `   利用圓心和半徑，寫出圓的標準方程：<br>`;
             explanation += `   使用圓的標準方程公式：${this.wrapWithLatex(`(x - h)^2 + (y - k)^2 = r^2`)}<br>`;
             explanation += `   其中(h, k)是圓心坐標，r是半徑。<br>`;
             explanation += `   帶入圓心(${data.centerX}, ${data.centerY})和半徑${this.wrapWithLatex(this.getRadiusLatex(radiusSquared))}：<br>`;
@@ -723,8 +723,8 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
                 explanation += `   ${this.wrapWithLatex(`r = ${simplified}`)}<br>`;
             }
             
-            // 步骤7：利用圆心和半径，写出圆的标准方程
-            explanation += `7. 利用圓心和半徑，寫出圓的標準方程：<br>`;
+            // 利用圆心和半径，写出圆的标准方程
+            explanation += `   利用圓心和半徑，寫出圓的標準方程：<br>`;
             explanation += `   使用圓的標準方程公式：${this.wrapWithLatex(`(x - h)^2 + (y - k)^2 = r^2`)}<br>`;
             explanation += `   其中(h, k)是圓心坐標，r是半徑。<br>`;
             explanation += `   帶入圓心(${data.centerX}, ${data.centerY})和半徑${this.wrapWithLatex(this.getRadiusLatex(radiusSquared))}：<br>`;
@@ -879,8 +879,8 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
                 explanation += `   ${this.wrapWithLatex(`r = ${simplified}`)}<br>`;
             }
             
-            // 步骤7：利用圆心和半径，写出圆的标准方程
-            explanation += `7. 利用圓心和半徑，寫出圓的標準方程：<br>`;
+            // 利用圆心和半径，写出圆的标准方程
+            explanation += `   利用圓心和半徑，寫出圓的標準方程：<br>`;
             explanation += `   使用圓的標準方程公式：${this.wrapWithLatex(`(x - h)^2 + (y - k)^2 = r^2`)}<br>`;
             explanation += `   其中(h, k)是圓心坐標，r是半徑。<br>`;
             explanation += `   帶入圓心(${data.centerX}, ${data.centerY})和半徑${this.wrapWithLatex(this.getRadiusLatex(radiusSquared))}：<br>`;
