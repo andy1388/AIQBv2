@@ -628,46 +628,61 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
                 yTerm = `(y + ${Math.abs(data.centerY)})^2`;
             }
             
-            explanation += `   ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${radiusSquared}`)}<br><br>`;
+            // 完整的標準形式方程
+            const standardForm = `${xTerm} + ${yTerm} = ${radiusSquared}`;
+            explanation += `   ${this.wrapWithLatex(standardForm)}<br><br>`;
             
             // 標準形式展開為一般形式
             explanation += `   展開標準形式方程得到一般形式：<br>`;
             
-            // 處理 x 項的展開
-            if (data.centerX === 0) {
-                explanation += `   ${this.wrapWithLatex(`x^2`)} + `;
+            // 將標準形式計算為一般形式的系數
+            const h = data.centerX;
+            const k = data.centerY;
+            const h2 = h * h;
+            const k2 = k * k;
+            const r2 = radiusSquared;
+            
+            // 直接使用已計算好的標準形式進行展開
+            // 展開 (x-h)² 和 (y-k)²
+            let expandedX = '';
+            if (h === 0) {
+                expandedX = 'x^2';
+            } else if (h > 0) {
+                expandedX = `x^2 - 2(${h})x + ${h}^2`;
             } else {
-                explanation += `   ${this.wrapWithLatex(`(x ${data.centerX > 0 ? '- ' + data.centerX : '+ ' + Math.abs(data.centerX)})^2 = x^2 ${data.centerX > 0 ? '- ' : '+ '}${Math.abs(2 * data.centerX)}x + ${data.centerX * data.centerX}`)}<br>`;
+                expandedX = `x^2 + 2(${Math.abs(h)})x + ${Math.abs(h)}^2`;
             }
             
-            // 處理 y 項的展開
-            if (data.centerY === 0) {
-                explanation += `   ${this.wrapWithLatex(`y^2`)} `;
+            let expandedY = '';
+            if (k === 0) {
+                expandedY = 'y^2';
+            } else if (k > 0) {
+                expandedY = `y^2 - 2(${k})y + ${k}^2`;
             } else {
-                explanation += `   ${this.wrapWithLatex(`(y ${data.centerY > 0 ? '- ' + data.centerY : '+ ' + Math.abs(data.centerY)})^2 = y^2 ${data.centerY > 0 ? '- ' : '+ '}${Math.abs(2 * data.centerY)}y + ${data.centerY * data.centerY}`)}<br>`;
+                expandedY = `y^2 + 2(${Math.abs(k)})y + ${Math.abs(k)}^2`;
             }
             
-            // 將所有展開的項合併
-            const g = -data.centerX;
-            const f = -data.centerY;
-            const c = data.centerX * data.centerX + data.centerY * data.centerY - radiusSquared;
+            explanation += `   ${this.wrapWithLatex(`${expandedX} + ${expandedY} = ${r2}`)}<br>`;
             
-            let generalForm = 'x^2 + y^2 ';
+            // 整理成一般形式
+            const g = -h;
+            const f = -k;
+            const c = h2 + k2 - r2;
+            
+            // 確保正負號正確顯示
+            let generalForm = 'x^2 + y^2';
             if (g !== 0) {
-                generalForm += g > 0 ? `+ ${2 * g}x ` : `- ${Math.abs(2 * g)}x `;
+                generalForm += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
             }
-            
             if (f !== 0) {
-                generalForm += f > 0 ? `+ ${f*2}y ` : `- ${Math.abs(f*2)}y `;
+                generalForm += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
             }
-            
             if (c !== 0) {
-                generalForm += c > 0 ? `+ ${c} ` : `- ${Math.abs(c)} `;
+                generalForm += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
             }
+            generalForm += ' = 0';
             
-            generalForm += `= 0`;
-            
-            explanation += `   移項並整理得到一般形式：${this.wrapWithLatex(generalForm)}`;
+            explanation += `   ${this.wrapWithLatex(generalForm)}<br>`;
         } else if (data.problemType === 'three_points') {
             explanation = `解題步驟：<br><br>`;
             explanation += `1. 給定三點 ${data.points.map((p, i) => `${pointLabels[i]}(${p.x}, ${p.y})`).join('、')}。<br><br>`;
@@ -703,34 +718,36 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             const k = data.centerY;
             const h2 = h * h;
             const k2 = k * k;
+            const r2 = radiusSquared;
             
-            // 展开(x-h)^2和(y-k)^2
-            let xExpansion = '';
+            // 直接使用已計算好的標準形式進行展開
+            // 展開 (x-h)² 和 (y-k)²
+            let expandedX = '';
             if (h === 0) {
-                xExpansion = 'x^2';
+                expandedX = 'x^2';
+            } else if (h > 0) {
+                expandedX = `x^2 - 2(${h})x + ${h}^2`;
             } else {
-                xExpansion = h > 0 ? 
-                    `x^2 - ${2*h}x + ${h2}` : 
-                    `x^2 + ${2*Math.abs(h)}x + ${h2}`;
+                expandedX = `x^2 + 2(${Math.abs(h)})x + ${Math.abs(h)}^2`;
             }
             
-            let yExpansion = '';
+            let expandedY = '';
             if (k === 0) {
-                yExpansion = 'y^2';
+                expandedY = 'y^2';
+            } else if (k > 0) {
+                expandedY = `y^2 - 2(${k})y + ${k}^2`;
             } else {
-                yExpansion = k > 0 ? 
-                    `y^2 - ${2*k}y + ${k2}` : 
-                    `y^2 + ${2*Math.abs(k)}y + ${k2}`;
+                expandedY = `y^2 + 2(${Math.abs(k)})y + ${Math.abs(k)}^2`;
             }
             
-            explanation += `   展開標準形式方程：${this.wrapWithLatex(`(x-${h})^2 + (y-${k})^2 = ${radiusSquared}`)}<br>`;
-            explanation += `   展開各項：${this.wrapWithLatex(`${xExpansion} + ${yExpansion} = ${radiusSquared}`)}<br>`;
+            explanation += `   ${this.wrapWithLatex(`${expandedX} + ${expandedY} = ${r2}`)}<br>`;
             
-            // 移项得到一般形式
-            const c = h2 + k2 - radiusSquared;
+            // 整理成一般形式
             const g = -h;
             const f = -k;
+            const c = h2 + k2 - r2;
             
+            // 確保正負號顯示正確
             let generalForm = 'x^2 + y^2';
             if (g !== 0) {
                 generalForm += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
@@ -820,34 +837,36 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             const k = data.centerY;
             const h2 = h * h;
             const k2 = k * k;
+            const r2 = radiusSquared;
             
-            // 展开(x-h)^2和(y-k)^2
-            let xExpansion = '';
+            // 直接使用已計算好的標準形式進行展開
+            // 展開 (x-h)² 和 (y-k)²
+            let expandedX = '';
             if (h === 0) {
-                xExpansion = 'x^2';
+                expandedX = 'x^2';
+            } else if (h > 0) {
+                expandedX = `x^2 - 2(${h})x + ${h}^2`;
             } else {
-                xExpansion = h > 0 ? 
-                    `x^2 - ${2*h}x + ${h2}` : 
-                    `x^2 + ${2*Math.abs(h)}x + ${h2}`;
+                expandedX = `x^2 + 2(${Math.abs(h)})x + ${Math.abs(h)}^2`;
             }
             
-            let yExpansion = '';
+            let expandedY = '';
             if (k === 0) {
-                yExpansion = 'y^2';
+                expandedY = 'y^2';
+            } else if (k > 0) {
+                expandedY = `y^2 - 2(${k})y + ${k}^2`;
             } else {
-                yExpansion = k > 0 ? 
-                    `y^2 - ${2*k}y + ${k2}` : 
-                    `y^2 + ${2*Math.abs(k)}y + ${k2}`;
+                expandedY = `y^2 + 2(${Math.abs(k)})y + ${Math.abs(k)}^2`;
             }
             
-            explanation += `   展開標準形式方程：${this.wrapWithLatex(`(x-${h})^2 + (y-${k})^2 = ${radiusSquared}`)}<br>`;
-            explanation += `   展開各項：${this.wrapWithLatex(`${xExpansion} + ${yExpansion} = ${radiusSquared}`)}<br>`;
+            explanation += `   ${this.wrapWithLatex(`${expandedX} + ${expandedY} = ${r2}`)}<br>`;
             
-            // 移项得到一般形式
-            const c = h2 + k2 - radiusSquared;
+            // 整理成一般形式
             const g = -h;
             const f = -k;
+            const c = h2 + k2 - r2;
             
+            // 確保正負號顯示正確
             let generalForm = 'x^2 + y^2';
             if (g !== 0) {
                 generalForm += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
