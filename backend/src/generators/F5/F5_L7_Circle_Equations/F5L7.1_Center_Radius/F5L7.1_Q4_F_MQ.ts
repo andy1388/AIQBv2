@@ -113,17 +113,15 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             case 1:
                 return this.generateLevel1Combination();
             case 2:
-                return this.generateLevel2Combination();
-            case 3:
                 return this.generateLevel3Combination();
-            case 4:
+            case 3:
                 return this.generateLevel4Combination();
             default:
                 return this.generateLevel1Combination();
         }
     }
 
-    // 難度1（現在是原難度2）：從直徑端點求圓方程（複雜整數坐標，可能含負數）
+    // 難度1：從直徑端點求圓方程（複雜整數坐標，可能含負數）
     private generateLevel1Combination(): PointsToCircleData {
         // 从预设问题中随机选择一个
         let randomProblem;
@@ -148,88 +146,6 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         
         // 生成标准形式或一般形式的圆方程
         const equationType = Math.random() > 0.5 ? 'standard' : 'general';
-        const equation = this.generateCircleEquation(centerX, centerY, radius, equationType);
-        
-        return {
-            points: [pointA, pointB],
-            centerX,
-            centerY,
-            radius,
-            equation,
-            equationType,
-            problemType: 'diameter'
-        };
-    }
-
-    // 難度2：已知圓的直徑端點，求圓方程，使用較複雜的整數坐標
-    private generateLevel2Combination(): PointsToCircleData {
-        // 生成兩個端點作為直徑
-        const pointA = {
-            x: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX),
-            y: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX)
-        };
-        
-        const pointB = {
-            x: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX),
-            y: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX)
-        };
-        
-        // 確保兩點不重合
-        while (pointA.x === pointB.x && pointA.y === pointB.y) {
-            pointB.x = getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX);
-            pointB.y = getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX);
-        }
-        
-        // 先計算直徑的中點作為基準點
-        const baseX = (pointA.x + pointB.x) / 2;
-        const baseY = (pointA.y + pointB.y) / 2;
-        
-        // 添加隨機整數偏移（-3到3之間）
-        let offsetX = getRandomInt(-3, 3);
-        let offsetY = getRandomInt(-3, 3);
-        
-        // 確保至少有一個偏移不為0，避免圓心與直徑中點相同
-        if (offsetX === 0 && offsetY === 0) {
-            const randomOffset = getRandomInt(1, 3) * (Math.random() < 0.5 ? -1 : 1);
-            if (Math.random() < 0.5) {
-                offsetX = randomOffset;
-            } else {
-                offsetY = randomOffset;
-            }
-        }
-        
-        // 圓心為基準點加上偏移
-        let centerX = baseX + offsetX;
-        let centerY = baseY + offsetY;
-        
-        // 確保圓心不是(0,0)
-        while (centerX === 0 && centerY === 0) {
-            // 生成新的偏移量
-            offsetX = getRandomInt(-3, 3);
-            offsetY = getRandomInt(-3, 3);
-            
-            // 確保至少有一個偏移不為0
-            if (offsetX === 0 && offsetY === 0) {
-                const randomOffset = getRandomInt(1, 3) * (Math.random() < 0.5 ? -1 : 1);
-                if (Math.random() < 0.5) {
-                    offsetX = randomOffset;
-                } else {
-                    offsetY = randomOffset;
-                }
-            }
-            
-            // 重新計算圓心
-            centerX = baseX + offsetX;
-            centerY = baseY + offsetY;
-        }
-        
-        // 半徑等於圓心到任一點的距離
-        const radius = Math.sqrt(
-            Math.pow(centerX - pointA.x, 2) + Math.pow(centerY - pointA.y, 2)
-        );
-        
-        // 生成圓方程
-        const equationType = Math.random() < 0.5 ? 'standard' : 'general';
         const equation = this.generateCircleEquation(centerX, centerY, radius, equationType);
         
         return {
@@ -382,12 +298,7 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         const pointsText = data.points.map((p, i) => `${pointLabels[i]}(${p.x}, ${p.y})`).join(' 和 ');
         
         if (data.problemType === 'diameter') {
-            // 如果是難度2，提法需要修改，因為圓心不再是直徑中點
-            if (this.difficulty === 2) {
-                questionText = `已知圓通過點 ${data.points.map((p, i) => `${pointLabels[i]}(${p.x}, ${p.y})`).join(' 和 ')}，且圓心在 (${data.centerX}, ${data.centerY})，求此圓的方程。`;
-            } else {
-                questionText = `如果 ${pointsText} 是圓的直徑端點，求此圓的方程。`;
-            }
+            questionText = `如果 ${pointsText} 是圓的直徑端點，求此圓的方程。`;
         } else if (data.problemType === 'three_points') {
             questionText = `求過點 ${pointsText} 的圓方程。`;
         } else if (data.problemType === 'right_triangle') {
