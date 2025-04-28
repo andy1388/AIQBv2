@@ -354,17 +354,75 @@ export default class FindCircleCenterRadiusGenerator extends QuestionGenerator {
     // 生成錯誤答案
     private generateWrongAnswers(data: CircleData): string[] {
         const wrongAnswers: string[] = [];
+        const correctAnswer = this.formatAnswer(data);
         
-        // 錯誤1：圓心符號錯誤
-        wrongAnswers.push(`圓心 = (${-data.centerX}, ${data.centerY}), 半徑 = ${data.radius}`);
+        // 錯誤1：圓心x坐標符號錯誤
+        const wrong1 = `圓心 = (${-data.centerX}, ${data.centerY}), 半徑 = ${data.radius}`;
+        
+        // 檢查答案是否與正確答案相同
+        if (wrong1 !== correctAnswer) {
+            wrongAnswers.push(wrong1);
+        } else {
+            // 如果相同，則修改半徑值
+            wrongAnswers.push(`圓心 = (${-data.centerX}, ${data.centerY}), 半徑 = ${data.radius + 1}`);
+        }
         
         // 錯誤2：圓心y值符號錯誤
-        wrongAnswers.push(`圓心 = (${data.centerX}, ${-data.centerY}), 半徑 = ${data.radius}`);
+        const wrong2 = `圓心 = (${data.centerX}, ${-data.centerY}), 半徑 = ${data.radius}`;
+        
+        // 檢查答案是否與正確答案相同或已存在
+        if (wrong2 !== correctAnswer && !wrongAnswers.includes(wrong2)) {
+            wrongAnswers.push(wrong2);
+        } else {
+            // 如果重複，則修改圓心x坐標和半徑
+            wrongAnswers.push(`圓心 = (${data.centerX + 1}, ${-data.centerY}), 半徑 = ${data.radius}`);
+        }
         
         // 錯誤3：半徑和半徑的平方混淆
-        wrongAnswers.push(`圓心 = (${data.centerX}, ${data.centerY}), 半徑 = ${data.radius * data.radius}`);
+        const wrong3 = `圓心 = (${data.centerX}, ${data.centerY}), 半徑 = ${data.radius * data.radius}`;
         
-        return wrongAnswers;
+        // 檢查答案是否與正確答案相同或已存在
+        if (wrong3 !== correctAnswer && !wrongAnswers.includes(wrong3)) {
+            wrongAnswers.push(wrong3);
+        } else {
+            // 如果重複，則增加一個半徑誤差為1的錯誤答案
+            wrongAnswers.push(`圓心 = (${data.centerX}, ${data.centerY}), 半徑 = ${data.radius + 1}`);
+        }
+        
+        // 如果還需要更多錯誤答案
+        while (wrongAnswers.length < 3) {
+            // 根據不同方程類型生成不同類型的錯誤
+            if (data.equationType === 'general') {
+                // 對於一般形式，常見錯誤是g和f的計算錯誤
+                const newX = data.centerX / 2;  // 錯誤地將-g除以2
+                const newY = data.centerY / 2;  // 錯誤地將-f除以2
+                const newWrong = `圓心 = (${newX}, ${newY}), 半徑 = ${data.radius}`;
+                
+                if (!wrongAnswers.includes(newWrong) && newWrong !== correctAnswer) {
+                    wrongAnswers.push(newWrong);
+                }
+            } else if (data.equationType === 'complex') {
+                // 對於複雜形式，常見錯誤是忘記考慮係數
+                const newWrong = `圓心 = (${data.centerX * 2}, ${data.centerY * 2}), 半徑 = ${Math.round(data.radius * Math.sqrt(2))}`;
+                
+                if (!wrongAnswers.includes(newWrong) && newWrong !== correctAnswer) {
+                    wrongAnswers.push(newWrong);
+                }
+            } else {
+                // 對於標準形式，生成隨機偏移的錯誤
+                const offsetX = getRandomInt(1, 3) * (Math.random() < 0.5 ? 1 : -1);
+                const offsetY = getRandomInt(1, 3) * (Math.random() < 0.5 ? 1 : -1);
+                const offsetR = getRandomInt(1, 2);
+                
+                const newWrong = `圓心 = (${data.centerX + offsetX}, ${data.centerY + offsetY}), 半徑 = ${data.radius + offsetR}`;
+                
+                if (!wrongAnswers.includes(newWrong) && newWrong !== correctAnswer) {
+                    wrongAnswers.push(newWrong);
+                }
+            }
+        }
+        
+        return wrongAnswers.slice(0, 3);  // 確保只返回三個錯誤答案
     }
 
     // 生成解釋

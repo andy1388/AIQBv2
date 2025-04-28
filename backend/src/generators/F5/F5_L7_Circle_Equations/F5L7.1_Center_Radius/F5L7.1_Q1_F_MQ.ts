@@ -478,42 +478,82 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                 
                 explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${Math.pow(data.radius, 2)}`)}<br>`;
             } else if (data.questionType === 'general') {
-                // 一般形式
-                explanation += `3. 轉換為一般形式方程：<br>`;
-                explanation += `   - 圓的一般形式方程為 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}<br>`;
-                explanation += `   - 其中 ${this.wrapWithLatex(`g=-h, f=-k, c=h^2+k^2-r^2`)}<br>`;
-                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br>`;
-                explanation += `   - ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${data.radius}^2`)}<br>`;
+                // 一般形式，使用展开方式导出
+                explanation += `3. 代入標準形式方程：<br>`;
+                explanation += `   - 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}<br>`;
+                explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑<br>`;
+                explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br><br>`;
                 
-                // 計算係數
-                const h2 = Math.pow(data.centerX, 2);
-                const k2 = Math.pow(data.centerY, 2);
+                // 标准形式
+                let xTerm = '';
+                if (data.centerX === 0) {
+                    xTerm = 'x^2';
+                } else if (data.centerX > 0) {
+                    xTerm = `(x-${data.centerX})^2`;
+                } else {
+                    xTerm = `(x+${Math.abs(data.centerX)})^2`;
+                }
+                
+                let yTerm = '';
+                if (data.centerY === 0) {
+                    yTerm = 'y^2';
+                } else if (data.centerY > 0) {
+                    yTerm = `(y-${data.centerY})^2`;
+                } else {
+                    yTerm = `(y+${Math.abs(data.centerY)})^2`;
+                }
+                
+                explanation += `   - ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${Math.pow(data.radius, 2)}`)}<br><br>`;
+                
+                // 展开标准形式到一般形式
+                explanation += `4. 展開標準形式方程並移項為一般形式：<br>`;
+                
+                // 计算展开后的系数
+                const h = data.centerX;
+                const k = data.centerY;
+                const h2 = h * h;
+                const k2 = k * k;
                 const r2 = Math.pow(data.radius, 2);
                 
-                explanation += `   - ${this.wrapWithLatex(`c = ${h2} + ${k2} - ${r2}`)}<br>`;
-                explanation += `   - ${this.wrapWithLatex(`c = ${h2 + k2 - r2}`)}<br><br>`;
+                // 展开(x-h)^2和(y-k)^2
+                let xExpansion = '';
+                if (h === 0) {
+                    xExpansion = 'x^2';
+                } else {
+                    xExpansion = h > 0 ? 
+                        `x^2 - ${2*h}x + ${h2}` : 
+                        `x^2 + ${2*Math.abs(h)}x + ${h2}`;
+                }
                 
-                // 構建方程
-                let equation = 'x^2 + y^2';
-                const g = -data.centerX;
-                const f = -data.centerY;
+                let yExpansion = '';
+                if (k === 0) {
+                    yExpansion = 'y^2';
+                } else {
+                    yExpansion = k > 0 ? 
+                        `y^2 - ${2*k}y + ${k2}` : 
+                        `y^2 + ${2*Math.abs(k)}y + ${k2}`;
+                }
+                
+                explanation += `   - ${this.wrapWithLatex(`${xExpansion} + ${yExpansion} = ${r2}`)}<br>`;
+                
+                // 移项得到一般形式
                 const c = h2 + k2 - r2;
+                const g = -h;
+                const f = -k;
                 
+                let generalForm = 'x^2 + y^2';
                 if (g !== 0) {
-                    equation += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
+                    generalForm += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
                 }
-                
                 if (f !== 0) {
-                    equation += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
+                    generalForm += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
                 }
-                
                 if (c !== 0) {
-                    equation += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+                    generalForm += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
                 }
+                generalForm += ' = 0';
                 
-                equation += ' = 0';
-                
-                explanation += `   - 方程為 ${this.wrapWithLatex(`${equation}`)}<br>`;
+                explanation += `   - 整理得到一般形式：${this.wrapWithLatex(`${generalForm}`)}<br>`;
             } else {
                 // 一段式形式
                 explanation += `3. 轉換為一段式形式：<br>`;
@@ -562,9 +602,9 @@ export default class CircleEquationGenerator extends QuestionGenerator {
                 yTerm = `(y+${Math.abs(data.centerY)})^2`;
             }
             
-            explanation += `   - 方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${data.radius * data.radius}`)}<br>`;
+            explanation += `   - 圓的方程為 ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${Math.pow(data.radius, 2)}`)}<br>`;
         } else if (data.questionType === 'general') {
-            // 難度3：一般形式（從標準形式展開）
+            // 難度1或2：一般形式
             explanation = `解題步驟：<br><br>`;
             explanation += `1. 已知條件：<br>`;
             explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}<br>`;
@@ -572,99 +612,80 @@ export default class CircleEquationGenerator extends QuestionGenerator {
             
             explanation += `2. 圓的標準形式方程：<br>`;
             explanation += `   - 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}<br>`;
-            explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br>`;
+            explanation += `   - 其中 ${this.wrapWithLatex(`(h,k)`)} 是圓心，${this.wrapWithLatex(`r`)} 是半徑<br>`;
+            explanation += `   - 代入 ${this.wrapWithLatex(`h=${data.centerX}, k=${data.centerY}, r=${data.radius}`)}<br><br>`;
             
-            // 生成標準形式方程
-            let xTermStandard = '';
+            let xTerm = '';
             if (data.centerX === 0) {
-                xTermStandard = 'x^2';
+                xTerm = 'x^2';
             } else if (data.centerX > 0) {
-                xTermStandard = `(x-${data.centerX})^2`;
+                xTerm = `(x-${data.centerX})^2`;
             } else {
-                xTermStandard = `(x+${Math.abs(data.centerX)})^2`;
+                xTerm = `(x+${Math.abs(data.centerX)})^2`;
             }
             
-            let yTermStandard = '';
+            let yTerm = '';
             if (data.centerY === 0) {
-                yTermStandard = 'y^2';
+                yTerm = 'y^2';
             } else if (data.centerY > 0) {
-                yTermStandard = `(y-${data.centerY})^2`;
+                yTerm = `(y-${data.centerY})^2`;
             } else {
-                yTermStandard = `(y+${Math.abs(data.centerY)})^2`;
+                yTerm = `(y+${Math.abs(data.centerY)})^2`;
             }
             
-            explanation += `   - ${this.wrapWithLatex(`${xTermStandard} + ${yTermStandard} = ${data.radius * data.radius}`)}<br><br>`;
+            explanation += `   - ${this.wrapWithLatex(`${xTerm} + ${yTerm} = ${Math.pow(data.radius, 2)}`)}<br><br>`;
             
+            // 展开标准形式到一般形式
             explanation += `3. 展開標準形式方程並移項為一般形式：<br>`;
             
-            // 定義係數
+            // 计算展开后的系数
             const h = data.centerX;
             const k = data.centerY;
-            const r = data.radius;
-            const r2 = r * r;
             const h2 = h * h;
             const k2 = k * k;
+            const r2 = Math.pow(data.radius, 2);
             
-            // 原始標準形式
-            explanation += `   - ${this.wrapWithLatex(`${xTermStandard} + ${yTermStandard} = ${r2}`)}<br>`;
-            
-            // 展開 x 項和 y 項
-            let expandedLeftSide = '';
-            
-            // x 項展開
+            // 展开(x-h)^2和(y-k)^2
+            let xExpansion = '';
             if (h === 0) {
-                expandedLeftSide = 'x^2';
+                xExpansion = 'x^2';
             } else {
-                const xSign = h > 0 ? '-' : '+';
-                const absH = Math.abs(h);
-                explanation += `   - ${this.wrapWithLatex(`(x${xSign}${absH})^2 = x^2 ${xSign} 2 \\cdot ${absH} \\cdot x + ${absH}^2 = x^2 ${xSign} ${2*absH}x + ${h2}`)}<br>`;
-                expandedLeftSide = h > 0 ? `x^2 - ${2*h}x + ${h2}` : `x^2 + ${2*Math.abs(h)}x + ${h2}`;
+                xExpansion = h > 0 ? 
+                    `x^2 - ${2*h}x + ${h2}` : 
+                    `x^2 + ${2*Math.abs(h)}x + ${h2}`;
             }
             
-            // y 項展開
             let yExpansion = '';
             if (k === 0) {
                 yExpansion = 'y^2';
             } else {
-                const ySign = k > 0 ? '-' : '+';
-                const absK = Math.abs(k);
-                explanation += `   - ${this.wrapWithLatex(`(y${ySign}${absK})^2 = y^2 ${ySign} 2 \\cdot ${absK} \\cdot y + ${absK}^2 = y^2 ${ySign} ${2*absK}y + ${k2}`)}<br>`;
-                yExpansion = k > 0 ? `y^2 - ${2*k}y + ${k2}` : `y^2 + ${2*Math.abs(k)}y + ${k2}`;
+                yExpansion = k > 0 ? 
+                    `y^2 - ${2*k}y + ${k2}` : 
+                    `y^2 + ${2*Math.abs(k)}y + ${k2}`;
             }
             
-            // 展開後的完整方程
-            const fullExpandedEquation = `${expandedLeftSide} + ${yExpansion} = ${r2}`;
-            explanation += `   - 展開後：${this.wrapWithLatex(fullExpandedEquation)}<br>`;
+            explanation += `   - ${this.wrapWithLatex(`${xExpansion} + ${yExpansion} = ${r2}`)}<br>`;
             
-            // 將右側移項到左側
-            const afterMoving = `${expandedLeftSide} + ${yExpansion} - ${r2} = 0`;
-            explanation += `   - 將右側移項到左側：${this.wrapWithLatex(afterMoving)}<br>`;
-            
-            // 整理成標準的一般形式 x² + y² + 2gx + 2fy + c = 0
+            // 移项得到一般形式
+            const c = h2 + k2 - r2;
             const g = -h;
             const f = -k;
-            const c = h2 + k2 - r2;
             
-            let finalEquation = `x^2 + y^2`;
+            let generalForm = 'x^2 + y^2';
             if (g !== 0) {
-                finalEquation += g > 0 ? ` + ${2*g}x` : ` - ${Math.abs(2*g)}x`;
+                generalForm += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
             }
-            
             if (f !== 0) {
-                finalEquation += f > 0 ? ` + ${2*f}y` : ` - ${Math.abs(2*f)}y`;
+                generalForm += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
             }
-            
             if (c !== 0) {
-                finalEquation += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+                generalForm += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
             }
+            generalForm += ' = 0';
             
-            finalEquation += ' = 0';
-            
-            explanation += `   - 整理得到一般形式：${this.wrapWithLatex(finalEquation)}<br><br>`;
-            
-            explanation += `   - 最終方程為：${this.wrapWithLatex(finalEquation)}<br>`;
+            explanation += `   - 整理得到一般形式：${this.wrapWithLatex(`${generalForm}`)}<br>`;
         } else {
-            // 難度5：一段式形式
+            // 難度1或2：一段式形式
             explanation = `解題步驟：<br><br>`;
             explanation += `1. 已知條件：<br>`;
             explanation += `   - 圓心 ${this.wrapWithLatex(`C(${data.centerX}, ${data.centerY})`)}<br>`;
@@ -690,5 +711,20 @@ export default class CircleEquationGenerator extends QuestionGenerator {
         }
         
         return explanation;
+    }
+
+    // 使用直徑端點計算圓心和半徑，並生成標準形式圓方程
+    // 已經添加了詳細的註釋以說明計算邏輯
+    private calculateCircleFromDiameter(p1: {x: number, y: number}, p2: {x: number, y: number}): {centerX: number, centerY: number, radius: number} {
+        // 計算圓心（直徑的中點）
+        const centerX = (p1.x + p2.x) / 2;
+        const centerY = (p1.y + p2.y) / 2;
+        
+        // 計算半徑（圓心到任一端點的距離）
+        const radius = Math.sqrt(
+            Math.pow(centerX - p1.x, 2) + Math.pow(centerY - p1.y, 2)
+        );
+        
+        return {centerX, centerY, radius};
     }
 }

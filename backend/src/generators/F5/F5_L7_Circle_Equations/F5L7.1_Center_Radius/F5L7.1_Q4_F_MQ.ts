@@ -24,12 +24,12 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
     private readonly PREDEFINED_PROBLEMS = {
         // 直徑端點 (選擇半徑為整數的點對)
         DIAMETER_EASY: [
-            {points: [{x: 3, y: 1}, {x: 7, y: 5}]}, // 半徑為√8 = 2√2，整數半徑值為2√2
-            {points: [{x: 1, y: 3}, {x: 7, y: 5}]}, // 半徑為√16+1 = √17
-            {points: [{x: 2, y: 4}, {x: 6, y: 8}]}  // 半徑為√16+4 = √20 = 2√5，整數半徑值為2√5
+            {points: [{x: 1, y: 3}, {x: 5, y: 7}]}, // 對應描述中的例子，半徑為2√5
+            {points: [{x: 2, y: 2}, {x: 6, y: 6}]}, // 半徑為2√2
+            {points: [{x: 0, y: 4}, {x: 4, y: 0}]}  // 半徑為2√2
         ],
         DIAMETER_MEDIUM: [
-            {points: [{x: 3, y: 3}, {x: -3, y: -3}]}, // 半徑為3√2，整數半徑值為3√2
+            {points: [{x: 2, y: 7}, {x: -6, y: -1}]}, // 對應描述中的例子
             {points: [{x: -4, y: 0}, {x: 4, y: 0}]},  // 半徑為4，整數半徑值為4
             {points: [{x: 0, y: -5}, {x: 0, y: 5}]}   // 半徑為5，整數半徑值為5
         ],
@@ -54,8 +54,25 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
 
     // 主要生成方法
     generate(): IGeneratorOutput {
+        // 确定答案选项的格式类型（1=全部一般形式，2=全部标准形式，3=混合形式）
+        // 随机选择一种格式类型，或者可以根据难度调整概率
+        const answerType = getRandomInt(1, 3);
+        
         // 生成題目組合
         const pointsData = this.generateValidCombination();
+        
+        // 調整方程形式以匹配 answerType
+        if ((answerType === 1 && pointsData.equationType !== 'general') || 
+            (answerType === 2 && pointsData.equationType !== 'standard')) {
+            // 更新方程和方程类型
+            pointsData.equation = this.generateCircleEquation(
+                pointsData.centerX, 
+                pointsData.centerY, 
+                pointsData.radius,
+                answerType === 1 ? 'general' : 'standard'
+            );
+            pointsData.equationType = answerType === 1 ? 'general' : 'standard';
+        }
         
         // 構建問題文本
         const questionText = this.generateQuestionText(pointsData);
@@ -64,7 +81,7 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         const correctAnswer = this.formatAnswer(pointsData);
         
         // 生成錯誤答案
-        const wrongAnswers = this.generateWrongAnswers(pointsData);
+        const wrongAnswers = this.generateWrongAnswers(pointsData, answerType);
         
         // 生成解釋
         const explanation = this.generateExplanation(pointsData);
@@ -90,15 +107,15 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
     private generateValidCombination(): PointsToCircleData {
         switch (this.difficulty) {
             case 1:
-                return this.generateLevel2Combination();
-            case 2:
                 return this.generateLevel1Combination();
+            case 2:
+                return this.generateLevel2Combination();
             case 3:
                 return this.generateLevel3Combination();
             case 4:
                 return this.generateLevel4Combination();
             default:
-                return this.generateLevel2Combination();
+                return this.generateLevel1Combination();
         }
     }
 
@@ -113,13 +130,65 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         const centerX = (pointA.x + pointB.x) / 2;
         const centerY = (pointA.y + pointB.y) / 2;
         
+        // 確保圓心不是(0,0)
+        if (centerX === 0 && centerY === 0) {
+            // 明确重新生成不同于预设的点，确保圆心不为原点
+            let newPointA = {
+                x: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX),
+                y: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX)
+            };
+            
+            let newPointB = {
+                x: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX), 
+                y: getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX)
+            };
+            
+            // 确保两点不重合
+            while (newPointA.x === newPointB.x && newPointA.y === newPointB.y) {
+                newPointB.x = getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX);
+                newPointB.y = getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX);
+            }
+            
+            // 计算圆心
+            let newCenterX = (newPointA.x + newPointB.x) / 2;
+            let newCenterY = (newPointA.y + newPointB.y) / 2;
+            
+            // 继续检查圆心是否为(0,0)，如果是则调整一个点的坐标
+            while (newCenterX === 0 && newCenterY === 0) {
+                // 调整其中一个点的坐标，确保中点不为原点
+                newPointA.x = getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX);
+                newPointA.y = getRandomInt(this.COORDINATE_RANGE.MEDIUM.MIN, this.COORDINATE_RANGE.MEDIUM.MAX);
+                
+                // 重新计算圆心
+                newCenterX = (newPointA.x + newPointB.x) / 2;
+                newCenterY = (newPointA.y + newPointB.y) / 2;
+            }
+            
+            // 使用新生成的點
+            return {
+                points: [newPointA, newPointB],
+                centerX: newCenterX,
+                centerY: newCenterY,
+                radius: Math.sqrt(Math.pow(newCenterX - newPointA.x, 2) + Math.pow(newCenterY - newPointA.y, 2)),
+                equation: this.generateCircleEquation(
+                    newCenterX, 
+                    newCenterY, 
+                    Math.sqrt(Math.pow(newCenterX - newPointA.x, 2) + Math.pow(newCenterY - newPointA.y, 2)),
+                    Math.random() > 0.5 ? 'standard' : 'general'
+                ),
+                equationType: Math.random() > 0.5 ? 'standard' : 'general',
+                problemType: 'diameter'
+            };
+        }
+        
         // 計算半徑（中點到端點的距離）
         const radius = Math.sqrt(
             Math.pow(centerX - pointA.x, 2) + Math.pow(centerY - pointA.y, 2)
         );
         
         // 生成標準形式或一般形式的圓方程
-        const equation = this.generateCircleEquation(centerX, centerY, radius);
+        const equationType = Math.random() > 0.5 ? 'standard' : 'general';
+        const equation = this.generateCircleEquation(centerX, centerY, radius, equationType);
         
         return {
             points: [pointA, pointB],
@@ -127,7 +196,7 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             centerY,
             radius,
             equation,
-            equationType: Math.random() > 0.5 ? 'standard' : 'general',
+            equationType,
             problemType: 'diameter'
         };
     }
@@ -342,24 +411,130 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
     }
 
     // 生成錯誤答案
-    private generateWrongAnswers(data: PointsToCircleData): string[] {
+    private generateWrongAnswers(data: PointsToCircleData, answerType: number): string[] {
         const wrongAnswers: string[] = [];
+        // 获取基本的方程式，不含LaTeX包装
+        const correctEquation = data.equation;
         
-        // 錯誤1：圓心坐標符號錯誤
-        const centerXWrong = -data.centerX;
-        const centerYWrong = data.centerY;
-        wrongAnswers.push(this.wrapWithLatex(this.generateCircleEquation(centerXWrong, centerYWrong, data.radius)));
+        // 基本错误：圆心坐标符号错误
+        let centerXWrong, centerYWrong, radiusWrong;
         
-        // 錯誤2：圓心y值符號錯誤
-        const centerXWrong2 = data.centerX;
-        const centerYWrong2 = -data.centerY;
-        wrongAnswers.push(this.wrapWithLatex(this.generateCircleEquation(centerXWrong2, centerYWrong2, data.radius)));
+        // 1. 圓心x坐標符號錯誤
+        centerXWrong = -data.centerX;
+        centerYWrong = data.centerY;
+        // 根据answerType决定方程类型
+        const wrong1Type = (answerType === 3) ? (wrongAnswers.length % 2 === 0 ? 'general' : 'standard') : 
+                          (answerType === 1 ? 'general' : 'standard');
+        const wrong1Equation = this.generateCircleEquation(centerXWrong, centerYWrong, data.radius, wrong1Type);
         
-        // 錯誤3：半徑計算錯誤（如果計算出直徑而非半徑）
-        const radiusWrong = data.radius * 2;
-        wrongAnswers.push(this.wrapWithLatex(this.generateCircleEquation(data.centerX, data.centerY, radiusWrong)));
+        // 确保不与正确答案相同（比较方程式而非LaTeX包装）
+        if (wrong1Equation !== correctEquation) {
+            wrongAnswers.push(this.wrapWithLatex(wrong1Equation));
+        } else {
+            // 如果相同，改变半径
+            wrongAnswers.push(this.wrapWithLatex(this.generateCircleEquation(centerXWrong, centerYWrong, data.radius + 1, wrong1Type)));
+        }
         
-        return wrongAnswers;
+        // 2. 圓心y坐標符號錯誤
+        centerXWrong = data.centerX;
+        centerYWrong = -data.centerY;
+        // 根据answerType决定方程类型
+        const wrong2Type = (answerType === 3) ? (wrongAnswers.length % 2 === 0 ? 'general' : 'standard') : 
+                          (answerType === 1 ? 'general' : 'standard');
+        const wrong2Equation = this.generateCircleEquation(centerXWrong, centerYWrong, data.radius, wrong2Type);
+        
+        // 收集纯方程式（无LaTeX包装）以检查重复
+        const generatedEquations = [correctEquation, wrong1Equation];
+        
+        // 确保不与已有答案重复
+        if (!generatedEquations.includes(wrong2Equation)) {
+            wrongAnswers.push(this.wrapWithLatex(wrong2Equation));
+            generatedEquations.push(wrong2Equation);
+        } else {
+            // 如果重复，修改生成的错误答案
+            const newWrong2Equation = this.generateCircleEquation(data.centerX + 1, centerYWrong, data.radius, wrong2Type);
+            if (!generatedEquations.includes(newWrong2Equation)) {
+                wrongAnswers.push(this.wrapWithLatex(newWrong2Equation));
+                generatedEquations.push(newWrong2Equation);
+            }
+        }
+        
+        // 3. 生成更多可能的错误
+        // 根据problemType生成特定类型的错误
+        const wrong3Type = (answerType === 3) ? (wrongAnswers.length % 2 === 0 ? 'general' : 'standard') : 
+                          (answerType === 1 ? 'general' : 'standard');
+        
+        if (data.problemType === 'diameter') {
+            // 特定错误：如果是直径问题，一个常见错误是半径使用直径长度的一半（与正确答案常不同）
+            const pointA = data.points[0];
+            const pointB = data.points[1];
+            const diameterLength = Math.sqrt(
+                Math.pow(pointB.x - pointA.x, 2) + Math.pow(pointB.y - pointA.y, 2)
+            );
+            radiusWrong = diameterLength / 2;
+            
+            // 只有当错误半径与实际半径不同时才使用
+            if (Math.abs(radiusWrong - data.radius) > 0.1) {
+                const wrong3Equation = this.generateCircleEquation(data.centerX, data.centerY, radiusWrong, wrong3Type);
+                if (!generatedEquations.includes(wrong3Equation)) {
+                    wrongAnswers.push(this.wrapWithLatex(wrong3Equation));
+                    generatedEquations.push(wrong3Equation);
+                }
+            }
+        } else {
+            // 对于其他类型，使用半径乘2的错误计算
+            radiusWrong = data.radius * 2;
+            const wrong3Equation = this.generateCircleEquation(data.centerX, data.centerY, radiusWrong, wrong3Type);
+            
+            if (!generatedEquations.includes(wrong3Equation)) {
+                wrongAnswers.push(this.wrapWithLatex(wrong3Equation));
+                generatedEquations.push(wrong3Equation);
+            }
+        }
+        
+        // 如果还需要更多错误答案
+        let attempts = 0;
+        while (wrongAnswers.length < 3 && attempts < 10) {
+            attempts++;
+            // 生成随机偏移
+            const offsetX = getRandomInt(1, 3) * (Math.random() < 0.5 ? 1 : -1);
+            const offsetY = getRandomInt(1, 3) * (Math.random() < 0.5 ? 1 : -1);
+            const offsetR = getRandomInt(1, 2);
+            
+            // 修改圆心和半径
+            const newCenterX = data.centerX + offsetX;
+            const newCenterY = data.centerY + offsetY;
+            const newRadius = Math.max(1, data.radius + offsetR); // 确保半径为正
+            
+            // 根据answerType决定方程类型
+            const wrongExtraType = (answerType === 3) ? (wrongAnswers.length % 2 === 0 ? 'general' : 'standard') : 
+                                  (answerType === 1 ? 'general' : 'standard');
+            const wrongExtraEquation = this.generateCircleEquation(newCenterX, newCenterY, newRadius, wrongExtraType);
+            
+            if (!generatedEquations.includes(wrongExtraEquation)) {
+                wrongAnswers.push(this.wrapWithLatex(wrongExtraEquation));
+                generatedEquations.push(wrongExtraEquation);
+            }
+        }
+        
+        // 如果仍然没有足够的错误答案，添加更多随机变化
+        while (wrongAnswers.length < 3) {
+            const randomCenterX = data.centerX + getRandomInt(4, 6) * (Math.random() < 0.5 ? 1 : -1);
+            const randomCenterY = data.centerY + getRandomInt(4, 6) * (Math.random() < 0.5 ? 1 : -1);
+            const randomRadius = data.radius + getRandomInt(3, 5);
+            
+            const randomType = (answerType === 3) ? (wrongAnswers.length % 2 === 0 ? 'general' : 'standard') : 
+                              (answerType === 1 ? 'general' : 'standard');
+            const randomEquation = this.generateCircleEquation(randomCenterX, randomCenterY, randomRadius, randomType);
+            
+            if (!generatedEquations.includes(randomEquation)) {
+                wrongAnswers.push(this.wrapWithLatex(randomEquation));
+                generatedEquations.push(randomEquation);
+            }
+        }
+        
+        // 只返回三个错误答案
+        return wrongAnswers.slice(0, 3);
     }
 
     // 生成解釋
@@ -388,16 +563,60 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
                 
                 if (data.equationType === 'standard') {
                     explanation += `3. 將圓心坐標和半徑代入圓的標準方程 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br>`;
+                } else {
+                    // 一般形式，从标准形式展开
+                    explanation += `3. 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}：<br>`;
                     explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br><br>`;
                     
-                    explanation += `4. 整理得到最終圓方程：<br>`;
-                    explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
-                } else {
-                    explanation += `3. 將圓心坐標和半徑代入圓的一般方程 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}，其中 ${this.wrapWithLatex(`g = -h, f = -k, c = h^2 + k^2 - r^2`)}：<br>`;
-                    explanation += `   ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${radiusSquared} = ${Math.round(data.centerX*data.centerX + data.centerY*data.centerY - radiusSquared)}`)}<br><br>`;
+                    // 展开标准形式到一般形式
+                    explanation += `   展開標準形式方程並移項為一般形式：<br>`;
                     
-                    explanation += `4. 整理得到最終圓方程：<br>`;
-                    explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                    // 计算展开后的系数
+                    const h = data.centerX;
+                    const k = data.centerY;
+                    const h2 = h * h;
+                    const k2 = k * k;
+                    
+                    // 展开(x-h)^2和(y-k)^2
+                    let xExpansion = '';
+                    if (h === 0) {
+                        xExpansion = 'x^2';
+                    } else {
+                        xExpansion = h > 0 ? 
+                            `x^2 - ${2*h}x + ${h2}` : 
+                            `x^2 + ${2*Math.abs(h)}x + ${h2}`;
+                    }
+                    
+                    let yExpansion = '';
+                    if (k === 0) {
+                        yExpansion = 'y^2';
+                    } else {
+                        yExpansion = k > 0 ? 
+                            `y^2 - ${2*k}y + ${k2}` : 
+                            `y^2 + ${2*Math.abs(k)}y + ${k2}`;
+                    }
+                    
+                    explanation += `   ${this.wrapWithLatex(`${xExpansion} + ${yExpansion} = ${radiusSquared}`)}<br>`;
+                    
+                    // 移项得到一般形式
+                    const c = h2 + k2 - radiusSquared;
+                    const g = -h;
+                    const f = -k;
+                    
+                    let generalForm = 'x^2 + y^2';
+                    if (g !== 0) {
+                        generalForm += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
+                    }
+                    if (f !== 0) {
+                        generalForm += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
+                    }
+                    if (c !== 0) {
+                        generalForm += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+                    }
+                    generalForm += ' = 0';
+                    
+                    explanation += `   整理得到一般形式：${this.wrapWithLatex(`${generalForm}`)}<br>`;
                 }
             } else {
                 explanation += `1. 給定兩點 ${pointsText[0]} 和 ${pointsText[1]} 是圓的直徑端點。<br><br>`;
@@ -415,16 +634,60 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
                 
                 if (data.equationType === 'standard') {
                     explanation += `4. 將圓心坐標和半徑代入圓的標準方程 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}：<br>`;
+                    explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br>`;
+                } else {
+                    // 一般形式，从标准形式展开
+                    explanation += `4. 圓的標準形式方程為 ${this.wrapWithLatex(`(x-h)^2 + (y-k)^2 = r^2`)}：<br>`;
                     explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br><br>`;
                     
-                    explanation += `5. 整理得到最終圓方程：<br>`;
-                    explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
-                } else {
-                    explanation += `4. 將圓心坐標和半徑代入圓的一般方程 ${this.wrapWithLatex(`x^2 + y^2 + 2gx + 2fy + c = 0`)}，其中 ${this.wrapWithLatex(`g = -h, f = -k, c = h^2 + k^2 - r^2`)}：<br>`;
-                    explanation += `   ${this.wrapWithLatex(`g = -${data.centerX}, f = -${data.centerY}, c = ${data.centerX}^2 + ${data.centerY}^2 - ${radiusSquared} = ${Math.round(data.centerX*data.centerX + data.centerY*data.centerY - radiusSquared)}`)}<br><br>`;
+                    // 展开标准形式到一般形式
+                    explanation += `   展開標準形式方程並移項為一般形式：<br>`;
                     
-                    explanation += `5. 整理得到最終圓方程：<br>`;
-                    explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                    // 计算展开后的系数
+                    const h = data.centerX;
+                    const k = data.centerY;
+                    const h2 = h * h;
+                    const k2 = k * k;
+                    
+                    // 展开(x-h)^2和(y-k)^2
+                    let xExpansion = '';
+                    if (h === 0) {
+                        xExpansion = 'x^2';
+                    } else {
+                        xExpansion = h > 0 ? 
+                            `x^2 - ${2*h}x + ${h2}` : 
+                            `x^2 + ${2*Math.abs(h)}x + ${h2}`;
+                    }
+                    
+                    let yExpansion = '';
+                    if (k === 0) {
+                        yExpansion = 'y^2';
+                    } else {
+                        yExpansion = k > 0 ? 
+                            `y^2 - ${2*k}y + ${k2}` : 
+                            `y^2 + ${2*Math.abs(k)}y + ${k2}`;
+                    }
+                    
+                    explanation += `   ${this.wrapWithLatex(`${xExpansion} + ${yExpansion} = ${radiusSquared}`)}<br>`;
+                    
+                    // 移项得到一般形式
+                    const c = h2 + k2 - radiusSquared;
+                    const g = -h;
+                    const f = -k;
+                    
+                    let generalForm = 'x^2 + y^2';
+                    if (g !== 0) {
+                        generalForm += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
+                    }
+                    if (f !== 0) {
+                        generalForm += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
+                    }
+                    if (c !== 0) {
+                        generalForm += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+                    }
+                    generalForm += ' = 0';
+                    
+                    explanation += `   整理得到一般形式：${this.wrapWithLatex(`${generalForm}`)}<br>`;
                 }
             }
         } else if (data.problemType === 'three_points') {
@@ -453,10 +716,60 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             
             if (data.equationType === 'standard') {
                 explanation += `7. 得到圓的標準方程：<br>`;
-                explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br>`;
             } else {
-                explanation += `7. 得到圓的一般方程：<br>`;
-                explanation += `   ${this.wrapWithLatex(data.equation)}<br>`;
+                // 一般形式，从标准形式展开
+                explanation += `7. 圓的標準形式方程為：<br>`;
+                explanation += `   ${this.wrapWithLatex(`(x-${data.centerX})^2 + (y-${data.centerY})^2 = ${radiusSquared}`)}<br><br>`;
+                
+                // 展开标准形式到一般形式
+                explanation += `   展開標準形式方程並移項為一般形式：<br>`;
+                
+                // 计算展开后的系数
+                const h = data.centerX;
+                const k = data.centerY;
+                const h2 = h * h;
+                const k2 = k * k;
+                
+                // 展开(x-h)^2和(y-k)^2
+                let xExpansion = '';
+                if (h === 0) {
+                    xExpansion = 'x^2';
+                } else {
+                    xExpansion = h > 0 ? 
+                        `x^2 - ${2*h}x + ${h2}` : 
+                        `x^2 + ${2*Math.abs(h)}x + ${h2}`;
+                }
+                
+                let yExpansion = '';
+                if (k === 0) {
+                    yExpansion = 'y^2';
+                } else {
+                    yExpansion = k > 0 ? 
+                        `y^2 - ${2*k}y + ${k2}` : 
+                        `y^2 + ${2*Math.abs(k)}y + ${k2}`;
+                }
+                
+                explanation += `   ${this.wrapWithLatex(`${xExpansion} + ${yExpansion} = ${radiusSquared}`)}<br>`;
+                
+                // 移项得到一般形式
+                const c = h2 + k2 - radiusSquared;
+                const g = -h;
+                const f = -k;
+                
+                let generalForm = 'x^2 + y^2';
+                if (g !== 0) {
+                    generalForm += g > 0 ? ` + ${g*2}x` : ` - ${Math.abs(g*2)}x`;
+                }
+                if (f !== 0) {
+                    generalForm += f > 0 ? ` + ${f*2}y` : ` - ${Math.abs(f*2)}y`;
+                }
+                if (c !== 0) {
+                    generalForm += c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+                }
+                generalForm += ' = 0';
+                
+                explanation += `   整理得到一般形式：${this.wrapWithLatex(`${generalForm}`)}<br>`;
             }
         } else if (data.problemType === 'right_triangle') {
             const [A, B, C] = data.points;
