@@ -112,10 +112,11 @@ export default class YourQuestionGenerator extends QuestionGenerator {
         const questionText = `\\[${combination.question} = \\text{?}\\]`;
         
         // 格式化正确答案
-        const correctAnswer = this.formatAnswer(combination.answer);
+        const correctAnswer = this.wrapWithLatex(this.formatAnswer(combination.answer));
         
         // 生成错误答案
-        const wrongAnswers = this.generateWrongAnswers(combination.answer);
+        const wrongAnswers = this.generateWrongAnswers(combination.answer)
+            .map(answer => this.wrapWithLatex(answer)); // 包装错误答案
 
         // 随机打乱答案选项顺序
         const allAnswers = [...wrongAnswers, correctAnswer];
@@ -152,5 +153,12 @@ export default class YourQuestionGenerator extends QuestionGenerator {
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
         return shuffled;
+    }
+    
+    // 工具方法：包装 LaTeX 内容
+    // 注意：问题内容使用 \[...\] 格式（用于显示独立的数学公式）
+    // 而答案选项使用 \(...\) 格式（用于行内数学公式）
+    private wrapWithLatex(latex: string): string {
+        return `\\(${latex}\\)`;
     }
 } 
