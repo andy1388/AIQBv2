@@ -2299,3 +2299,226 @@ export const AlgebraUtils = {
         }
     }
 };
+
+/**
+ * 表示直角三角形的点的接口
+ */
+export interface RightTrianglePoints {
+    points: { x: number, y: number }[];  // 三角形的三个顶点
+    rightAngleVertex: number;           // 直角顶点的索引 (0, 1, 或 2)
+}
+
+/**
+ * 生成具有整数坐标的非轴对齐直角三角形
+ * 
+ * 生成的三角形满足以下条件:
+ * 1. 所有坐标都是整数
+ * 2. 所有x坐标互不相同，所有y坐标互不相同
+ * 3. 斜边不平行于x轴或y轴（即非轴对齐）
+ * 4. 明确指出哪个点是直角顶点
+ * 
+ * @param coordRange 坐标范围对象，默认为 {min: -10, max: 10}
+ * @returns 包含三角形顶点和直角顶点索引的对象
+ */
+export function generateNonAxisAlignedRightTriangle(coordRange: NumberRange = { min: -10, max: 10 }): RightTrianglePoints {
+    // 确保坐标范围合理
+    if (coordRange.max - coordRange.min < 5) {
+        coordRange = { min: -10, max: 10 };
+    }
+    
+    let points: { x: number, y: number }[] = [];
+    let rightAngleVertex: number;
+    
+    // 尝试生成合适的三角形，直到满足所有条件
+    let isValid = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 100;
+    
+    while (!isValid && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        
+        // 使用原始毕达哥拉斯三元组作为生成直角三角形的基础
+        // 原始毕达哥拉斯三元组例如：(3,4,5), (5,12,13), (8,15,17)等
+        const pythagoreanTriples: [number, number, number][] = [
+            [3, 4, 5],
+            [5, 12, 13],
+            [8, 15, 17],
+            [7, 24, 25],
+            [20, 21, 29],
+            [12, 35, 37],
+            [9, 40, 41],
+            [28, 45, 53],
+            [11, 60, 61],
+            [16, 63, 65]
+        ];
+        
+        // 随机选择一个毕达哥拉斯三元组
+        const randomTriple = pythagoreanTriples[getRandomInt(0, pythagoreanTriples.length - 1)];
+        
+        // 随机选择直角顶点位置
+        rightAngleVertex = getRandomInt(0, 2);
+        
+        // 为确保非轴对齐，我们将生成随机的旋转和平移
+        // 随机生成起始点
+        const startX = getRandomInt(coordRange.min + 5, coordRange.max - 5);
+        const startY = getRandomInt(coordRange.min + 5, coordRange.max - 5);
+        
+        // 使用变换矩阵生成其他点，实现旋转效果
+        // 旋转角度范围避开0°, 90°, 180°, 270°附近的角度，以确保非轴对齐
+        const validAngles = [
+            getRandomInt(10, 35), getRandomInt(55, 80),
+            getRandomInt(100, 125), getRandomInt(145, 170),
+            getRandomInt(190, 215), getRandomInt(235, 260),
+            getRandomInt(280, 305), getRandomInt(325, 350)
+        ];
+        const rotationAngleDegrees = validAngles[getRandomInt(0, validAngles.length - 1)];
+        const rotationAngle = (rotationAngleDegrees * Math.PI) / 180;
+        
+        // 创建旋转矩阵
+        const cosTheta = Math.cos(rotationAngle);
+        const sinTheta = Math.sin(rotationAngle);
+        
+        // 根据直角位置构建三角形
+        let legs: [number, number] = [0, 0];
+        if (rightAngleVertex === 0) {
+            legs = [randomTriple[0], randomTriple[1]]; // 两条直角边
+        } else if (rightAngleVertex === 1) {
+            legs = [randomTriple[0], randomTriple[2]]; // 一条直角边和斜边
+        } else {
+            legs = [randomTriple[1], randomTriple[2]]; // 一条直角边和斜边
+        }
+        
+        // 应用旋转和缩放以获得适当尺寸的三角形
+        // 使用缩放因子以确保三角形不会太大或太小
+        const scaleFactor = 0.5;
+        
+        // 生成三个点
+        points = [];
+        
+        // 直角顶点(始终位于起始点)
+        points[rightAngleVertex] = { x: startX, y: startY };
+        
+        // 生成其余两个点
+        if (rightAngleVertex === 0) {
+            // 第二个点
+            points[1] = {
+                x: Math.round(startX + legs[0] * scaleFactor * cosTheta),
+                y: Math.round(startY + legs[0] * scaleFactor * sinTheta)
+            };
+            
+            // 第三个点
+            points[2] = {
+                x: Math.round(startX + legs[1] * scaleFactor * Math.cos(rotationAngle + Math.PI/2)),
+                y: Math.round(startY + legs[1] * scaleFactor * Math.sin(rotationAngle + Math.PI/2))
+            };
+        } else if (rightAngleVertex === 1) {
+            // 第一个点
+            points[0] = {
+                x: Math.round(startX + legs[0] * scaleFactor * cosTheta),
+                y: Math.round(startY + legs[0] * scaleFactor * sinTheta)
+            };
+            
+            // 第三个点
+            points[2] = {
+                x: Math.round(startX + legs[1] * scaleFactor * Math.cos(rotationAngle + Math.PI/2)),
+                y: Math.round(startY + legs[1] * scaleFactor * Math.sin(rotationAngle + Math.PI/2))
+            };
+        } else {
+            // 第一个点
+            points[0] = {
+                x: Math.round(startX + legs[0] * scaleFactor * cosTheta),
+                y: Math.round(startY + legs[0] * scaleFactor * sinTheta)
+            };
+            
+            // 第二个点
+            points[1] = {
+                x: Math.round(startX + legs[1] * scaleFactor * Math.cos(rotationAngle + Math.PI/2)),
+                y: Math.round(startY + legs[1] * scaleFactor * Math.sin(rotationAngle + Math.PI/2))
+            };
+        }
+        
+        // 验证三角形是否满足条件
+        
+        // 1. 检查所有坐标是否在指定范围内
+        const allCoordsInRange = points.every(p => 
+            p.x >= coordRange.min && p.x <= coordRange.max && 
+            p.y >= coordRange.min && p.y <= coordRange.max
+        );
+        
+        // 2. 检查x坐标和y坐标是否各不相同
+        const xCoords = points.map(p => p.x);
+        const yCoords = points.map(p => p.y);
+        const uniqueXCoords = new Set(xCoords).size === 3;
+        const uniqueYCoords = new Set(yCoords).size === 3;
+        
+        // 3. 验证是否形成直角三角形
+        // 计算三边长度的平方
+        const sides = [
+            Math.pow(points[1].x - points[0].x, 2) + Math.pow(points[1].y - points[0].y, 2),
+            Math.pow(points[2].x - points[1].x, 2) + Math.pow(points[2].y - points[1].y, 2),
+            Math.pow(points[0].x - points[2].x, 2) + Math.pow(points[0].y - points[2].y, 2)
+        ];
+        
+        // 验证勾股定理是否成立
+        // 允许一定的舍入误差（由于坐标取整）
+        let isRightTriangle = false;
+        const tolerance = 0.1;  // 允许的误差范围
+        
+        if (rightAngleVertex === 0) {
+            isRightTriangle = Math.abs(sides[0] + sides[2] - sides[1]) / sides[1] < tolerance;
+        } else if (rightAngleVertex === 1) {
+            isRightTriangle = Math.abs(sides[0] + sides[1] - sides[2]) / sides[2] < tolerance;
+        } else {
+            isRightTriangle = Math.abs(sides[1] + sides[2] - sides[0]) / sides[0] < tolerance;
+        }
+        
+        // 4. 检查斜边是否非轴对齐
+        // 找出斜边
+        let hypotenuseIndex: number;
+        if (rightAngleVertex === 0) hypotenuseIndex = 1;
+        else if (rightAngleVertex === 1) hypotenuseIndex = 2;
+        else hypotenuseIndex = 0;
+        
+        const p1 = points[(hypotenuseIndex) % 3];
+        const p2 = points[(hypotenuseIndex + 1) % 3];
+        
+        const isNotAxisAligned = p1.x !== p2.x && p1.y !== p2.y;
+        
+        // 检查所有条件是否都满足
+        isValid = allCoordsInRange && uniqueXCoords && uniqueYCoords && isRightTriangle && isNotAxisAligned;
+    }
+    
+    // 如果无法生成满足所有条件的三角形，使用预定义的三角形
+    if (!isValid) {
+        const predefinedTriangles: RightTrianglePoints[] = [
+            {
+                points: [
+                    { x: -5, y: 1 },
+                    { x: 3, y: 7 },
+                    { x: 2, y: -6 }
+                ],
+                rightAngleVertex: 0
+            },
+            {
+                points: [
+                    { x: 0, y: -3 },
+                    { x: -7, y: 4 },
+                    { x: 5, y: 8 }
+                ],
+                rightAngleVertex: 1
+            },
+            {
+                points: [
+                    { x: 6, y: 2 },
+                    { x: -3, y: -4 },
+                    { x: 1, y: 5 }
+                ],
+                rightAngleVertex: 2
+            }
+        ];
+        
+        return predefinedTriangles[getRandomInt(0, predefinedTriangles.length - 1)];
+    }
+    
+    return { points, rightAngleVertex };
+}

@@ -1,5 +1,5 @@
 import { QuestionGenerator, IGeneratorOutput } from '@/generators/QuestionGenerator';
-import { getRandomInt } from '@/utils/mathUtils';
+import { getRandomInt, generateNonAxisAlignedRightTriangle, RightTrianglePoints } from '@/utils/mathUtils';
 
 // 定義題目所需的接口
 interface PointsToCircleData {
@@ -10,6 +10,7 @@ interface PointsToCircleData {
     equation: string;    // 圓的方程式
     equationType: 'standard' | 'general'; // 方程類型
     problemType: 'diameter' | 'three_points' | 'right_triangle'; // 題目類型
+    rightAngleIndex?: number; // 直角顶点索引，用于right_triangle问题类型
 }
 
 export default class PointsToCircleEquationGenerator extends QuestionGenerator {
@@ -51,6 +52,9 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         ]
     };
 
+    // 添加测试模式标志和测试函数
+    private isTestMode: boolean = false;
+
     constructor(difficulty: number = 1) {
         // 設置難度和題目ID
         super(difficulty, 'F5L7.1_Q4_F_MQ');
@@ -58,6 +62,11 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
 
     // 主要生成方法
     generate(): IGeneratorOutput {
+        // 如果是测试模式，返回测试输出
+        if (this.isTestMode) {
+            return this.generateTestOutput();
+        }
+        
         // 确定答案选项的格式类型（1=全部一般形式，2=全部标准形式，3=混合形式）
         // 随机选择一种格式类型，或者可以根据难度调整概率
         const answerType = getRandomInt(1, 3);
@@ -184,9 +193,14 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
 
     // 難度4：先證明三角形是直角三角形，再求圓方程
     private generateLevel4Combination(): PointsToCircleData {
-        // 從預設問題中隨機選擇一個
-        const randomProblem = this.getRandomElement(this.PREDEFINED_PROBLEMS.RIGHT_TRIANGLE);
-        const points = randomProblem.points;
+        // 使用generateNonAxisAlignedRightTriangle函数生成非轴对齐的直角三角形
+        const triangleData = generateNonAxisAlignedRightTriangle({
+            min: -8,
+            max: 8
+        });
+        
+        const points = triangleData.points;
+        const rightAngleIndex = triangleData.rightAngleVertex;
         
         // 使用三點求圓心和半徑
         const {centerX, centerY, radius} = this.calculateCircleFromThreePoints(points);
@@ -194,6 +208,7 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
         // 生成圓方程
         const equation = this.generateCircleEquation(centerX, centerY, radius);
         
+        // 创建PointsToCircleData对象并传入直角顶点信息
         return {
             points,
             centerX,
@@ -201,7 +216,8 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             radius,
             equation,
             equationType: Math.random() > 0.5 ? 'standard' : 'general',
-            problemType: 'right_triangle'
+            problemType: 'right_triangle',
+            rightAngleIndex // 添加直角顶点索引
         };
     }
 
@@ -303,7 +319,8 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             questionText = `求過點 ${pointsText} 的圓方程。`;
         } else if (data.problemType === 'right_triangle') {
             const [A, B, C] = data.points.map((p, i) => `${pointLabels[i]}(${p.x}, ${p.y})`);
-            questionText = `已知點 ${A}、${B} 和 ${C}。<br><br>a) 證明 △ABC 是直角三角形。<br>b) 求過這三點的圓方程。`;
+            const rightAnglePoint = pointLabels[data.rightAngleIndex || 0]; // 使用rightAngleIndex确定直角顶点
+            questionText = `已知點 ${A}、${B} 和 ${C}。<br><br>a) 證明 △ABC 是直角三角形，並指出直角在哪個頂點。<br>b) 求過這三點的圓方程。`;
         }
         
         return questionText;
@@ -674,6 +691,8 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             explanation += `   移項並整理得到一般形式：${this.wrapWithLatex(generalForm)}`;
         } else if (data.problemType === 'right_triangle') {
             const [A, B, C] = data.points;
+            const rightAngleIndex = data.rightAngleIndex || 0; // 使用rightAngleIndex或默认为0
+            const rightAngleLabel = pointLabels[rightAngleIndex];
             
             explanation += `(a) 證明 △ABC 是直角三角形：<br><br>`;
             
@@ -682,19 +701,31 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             const BC2 = Math.pow(C.x - B.x, 2) + Math.pow(C.y - B.y, 2);
             const AC2 = Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2);
             
-            // 找出最長邊和其他兩邊
-            let max = Math.max(AB2, BC2, AC2);
-            let sum = 0;
-            let angle = '';
-            if (max === AB2) {
-                sum = BC2 + AC2;
-                angle = 'C';
-            } else if (max === BC2) {
-                sum = AB2 + AC2;
-                angle = 'A';
-            } else {
-                sum = AB2 + BC2;
-                angle = 'B';
+            // 根据直角顶点创建合适的勾股定理验证
+            let leg1Squared, leg2Squared, hypSquared;
+            let leg1Label, leg2Label, hypLabel;
+            
+            if (rightAngleIndex === 0) { // 直角在A
+                leg1Squared = AB2;
+                leg2Squared = AC2;
+                hypSquared = BC2;
+                leg1Label = 'AB';
+                leg2Label = 'AC';
+                hypLabel = 'BC';
+            } else if (rightAngleIndex === 1) { // 直角在B
+                leg1Squared = AB2;
+                leg2Squared = BC2;
+                hypSquared = AC2;
+                leg1Label = 'AB';
+                leg2Label = 'BC';
+                hypLabel = 'AC';
+            } else { // 直角在C
+                leg1Squared = AC2;
+                leg2Squared = BC2;
+                hypSquared = AB2;
+                leg1Label = 'AC';
+                leg2Label = 'BC';
+                hypLabel = 'AB';
             }
             
             explanation += `1. 計算三邊長度的平方：<br>`;
@@ -703,36 +734,39 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
             explanation += `   ${this.wrapWithLatex(`|AC|^2 = (${C.x} - ${A.x})^2 + (${C.y} - ${A.y})^2 = ${AC2}`)}<br><br>`;
             
             explanation += `2. 根據畢達哥拉斯定理，如果三角形是直角三角形，則兩短邊平方和等於斜邊平方：<br>`;
-            explanation += `   ${this.wrapWithLatex(`${sum} = ${max}`)}<br><br>`;
+            explanation += `   檢查 ${this.wrapWithLatex(`|${leg1Label}|^2 + |${leg2Label}|^2 = |${hypLabel}|^2`)}<br>`;
+            explanation += `   ${this.wrapWithLatex(`${leg1Squared} + ${leg2Squared} = ${leg1Squared + leg2Squared}`)}<br>`;
+            explanation += `   ${this.wrapWithLatex(`${hypSquared} ≈ ${leg1Squared + leg2Squared}`)}<br><br>`;
             
-            explanation += `3. 由於 ${this.wrapWithLatex(`${sum} = ${max}`)}，所以 △ABC 是直角三角形，直角在 ${angle} 點。<br><br>`;
+            explanation += `3. 由於 ${this.wrapWithLatex(`|${leg1Label}|^2 + |${leg2Label}|^2 ≈ |${hypLabel}|^2`)}，所以 △ABC 是直角三角形，直角在 ${rightAngleLabel} 點。<br><br>`;
             
             explanation += `(b) 求過這三點的圓方程：<br><br>`;
             
-            explanation += `4. 由於 △ABC 是直角三角形，根據圓的性質，其外接圓的圓心是斜邊的中點。<br>`;
+            explanation += `4. 對於直角三角形，半圓直徑對應於斜邊，圓心為斜邊的中點。<br>`;
             
             // 確定斜邊及其端點
             let p1, p2;
-            if (max === AB2) {
-                p1 = A;
-                p2 = B;
-                explanation += `   斜邊是 AB，所以圓心是 AB 的中點。<br>`;
-            } else if (max === BC2) {
+            if (rightAngleIndex === 0) { // A是直角，BC是斜邊
                 p1 = B;
                 p2 = C;
-                explanation += `   斜邊是 BC，所以圓心是 BC 的中點。<br>`;
-            } else {
+                explanation += `   由於直角在 A，斜邊是 BC，所以圓心是 BC 的中點。<br>`;
+            } else if (rightAngleIndex === 1) { // B是直角，AC是斜邊
                 p1 = A;
                 p2 = C;
-                explanation += `   斜邊是 AC，所以圓心是 AC 的中點。<br>`;
+                explanation += `   由於直角在 B，斜邊是 AC，所以圓心是 AC 的中點。<br>`;
+            } else { // C是直角，AB是斜邊
+                p1 = A;
+                p2 = B;
+                explanation += `   由於直角在 C，斜邊是 AB，所以圓心是 AB 的中點。<br>`;
             }
             
             explanation += `5. 計算圓心坐標：<br>`;
             explanation += `   ${this.wrapWithLatex(`(h, k) = (\\frac{${p1.x} + ${p2.x}}{2}, \\frac{${p1.y} + ${p2.y}}{2}) = (${data.centerX}, ${data.centerY})`)}<br><br>`;
             
             // 计算半径，使用新方法
-            explanation += `6. 計算圓的半徑（圓心到任一給定點的距離）：<br>`;
-            explanation += this.generateRadiusCalculationSteps(data.centerX, data.centerY, p1.x, p1.y, radiusSquared);
+            explanation += `6. 計算圓的半徑（圓心到直角頂點的距離）：<br>`;
+            const rightAnglePoint = data.points[rightAngleIndex];
+            explanation += this.generateRadiusCalculationSteps(data.centerX, data.centerY, rightAnglePoint.x, rightAnglePoint.y, radiusSquared);
             
             // 标准方程
             explanation += `7. 利用圓心和半徑，寫出圓的標準形式方程：<br>`;
@@ -830,5 +864,74 @@ export default class PointsToCircleEquationGenerator extends QuestionGenerator {
     private getRandomElement<T>(array: T[]): T {
         const randomIndex = getRandomInt(0, array.length - 1);
         return array[randomIndex];
+    }
+
+    // 设置测试模式
+    setTestMode(isTestMode: boolean): void {
+        this.isTestMode = isTestMode;
+    }
+
+    // 生成测试输出
+    private generateTestOutput(): IGeneratorOutput {
+        // 测试生成非轴对齐直角三角形
+        const triangleData = generateNonAxisAlignedRightTriangle({
+            min: -8,
+            max: 8
+        });
+        
+        // 构建测试信息
+        const points = triangleData.points;
+        const rightAngleIndex = triangleData.rightAngleVertex;
+        const pointLabels = ['A', 'B', 'C'];
+        
+        const sides = [
+            Math.pow(points[1].x - points[0].x, 2) + Math.pow(points[1].y - points[0].y, 2),
+            Math.pow(points[2].x - points[1].x, 2) + Math.pow(points[2].y - points[1].y, 2),
+            Math.pow(points[0].x - points[2].x, 2) + Math.pow(points[0].y - points[2].y, 2)
+        ];
+        
+        let verificationText = '';
+        if (rightAngleIndex === 0) {
+            verificationText = `|AB|² + |AC|² = ${sides[0]} + ${sides[2]} = ${sides[0] + sides[2]}, |BC|² = ${sides[1]}`;
+        } else if (rightAngleIndex === 1) {
+            verificationText = `|AB|² + |BC|² = ${sides[0]} + ${sides[1]} = ${sides[0] + sides[1]}, |AC|² = ${sides[2]}`;
+        } else {
+            verificationText = `|AC|² + |BC|² = ${sides[2]} + ${sides[1]} = ${sides[2] + sides[1]}, |AB|² = ${sides[0]}`;
+        }
+        
+        const testOutput = `
+            <h3>非轴对齐直角三角形测试</h3>
+            <p>生成的三角形坐标：</p>
+            <ul>
+                <li>点A: (${points[0].x}, ${points[0].y})</li>
+                <li>点B: (${points[1].x}, ${points[1].y})</li>
+                <li>点C: (${points[2].x}, ${points[2].y})</li>
+            </ul>
+            <p>直角位于: 点${pointLabels[rightAngleIndex]}</p>
+            <p>勾股定理验证: ${verificationText}</p>
+            <p>x坐标是否互不相同: ${new Set(points.map(p => p.x)).size === 3 ? '是' : '否'}</p>
+            <p>y坐标是否互不相同: ${new Set(points.map(p => p.y)).size === 3 ? '是' : '否'}</p>
+        `;
+        
+        // 计算斜边是否非轴对齐
+        let hypotenuseIndex;
+        if (rightAngleIndex === 0) hypotenuseIndex = 1;
+        else if (rightAngleIndex === 1) hypotenuseIndex = 2;
+        else hypotenuseIndex = 0;
+        
+        const p1 = points[(hypotenuseIndex) % 3];
+        const p2 = points[(hypotenuseIndex + 1) % 3];
+        const isNotAxisAligned = p1.x !== p2.x && p1.y !== p2.y;
+        
+        return {
+            content: testOutput + `<p>斜边是否非轴对齐: ${isNotAxisAligned ? '是' : '否'}</p>`,
+            correctAnswer: '测试模式',
+            wrongAnswers: ['测试选项1', '测试选项2', '测试选项3'],
+            explanation: '这是一个测试模式，用于验证非轴对齐直角三角形生成功能。',
+            type: 'text',
+            displayOptions: {
+                latex: false
+            }
+        };
     }
 }
