@@ -48,7 +48,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
 
         const wrongAnswers = this.generateWrongAnswers(operation);
         const content = this.formatQuestion(operation);
-        const correctAnswer = operation.result;
+        const correctAnswer = this.wrapWithLatex(operation.result);
         const explanation = this.generateExplanation(operation);
 
         return {
@@ -306,10 +306,10 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
             let wrongAnswer: string | undefined = undefined;
             
             try {
-                // 从LaTeX格式提取分子分母
-                const matches = correctResult.match(/\\frac\{(\d+)\}\{(\d+)\}/);
-                if (matches) {
-                    const [_, num, den] = matches;
+                // 处理分数形式
+                const fracMatch = correctResult.match(/\\frac\{(\d+)\}\{(\d+)\}/);
+                if (fracMatch) {
+                    const [_, num, den] = fracMatch;
                     const numValue = parseInt(num);
                     const denValue = parseInt(den);
                     
@@ -328,11 +328,17 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
                             // 确保分母大于分子且不等于分子
                             return newDen > numValue ? 
                                 `\\frac{${numValue}}{${newDen}}` : undefined;
+                        },
+                        // 分子分母互换
+                        () => {
+                            // 只有当分子小于分母时才互换
+                            return numValue < denValue ? 
+                                `\\frac{${denValue}}{${numValue}}` : undefined;
                         }
                     ];
                     
                     // 随机尝试不同策略直到生成有效答案
-                    for (let i = 0; i < 3; i++) {
+                    for (let i = 0; i < 5; i++) {
                         const strategy = strategies[Math.floor(Math.random() * strategies.length)];
                         const result = strategy();
                         if (result) {
@@ -340,8 +346,53 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
                             break;
                         }
                     }
-                } else {
-                    // 处理整数结果
+                } 
+                // 处理带分数形式
+                else if (correctResult.match(/^(-?\d+)\\frac\{(\d+)\}\{(\d+)\}$/)) {
+                    const mixedMatch = correctResult.match(/^(-?\d+)\\frac\{(\d+)\}\{(\d+)\}$/);
+                    if (mixedMatch) {
+                        const [_, whole, num, den] = mixedMatch;
+                        const wholeValue = parseInt(whole);
+                        const numValue = parseInt(num);
+                        const denValue = parseInt(den);
+                        
+                        // 生成错误答案的策略
+                        const strategies = [
+                            // 整数部分加减一
+                            () => {
+                                const newWhole = wholeValue + getNonZeroRandomInt(-1, 1);
+                                return newWhole >= 0 ? 
+                                    `${newWhole}\\frac{${numValue}}{${denValue}}` : undefined;
+                            },
+                            // 分子加减一
+                            () => {
+                                const newNum = numValue + getNonZeroRandomInt(-1, 1);
+                                // 确保分子小于分母且不为负数
+                                return newNum > 0 && newNum < denValue ? 
+                                    `${wholeValue}\\frac{${newNum}}{${denValue}}` : undefined;
+                            },
+                            // 分母加减一
+                            () => {
+                                const newDen = denValue + getNonZeroRandomInt(1, 2);
+                                // 确保分母大于分子
+                                return newDen > numValue ? 
+                                    `${wholeValue}\\frac{${numValue}}{${newDen}}` : undefined;
+                            }
+                        ];
+                        
+                        // 随机尝试不同策略直到生成有效答案
+                        for (let i = 0; i < 5; i++) {
+                            const strategy = strategies[Math.floor(Math.random() * strategies.length)];
+                            const result = strategy();
+                            if (result) {
+                                wrongAnswer = result;
+                                break;
+                            }
+                        }
+                    }
+                } 
+                // 处理整数结果
+                else {
                     const value = parseInt(correctResult);
                     wrongAnswer = (value + getNonZeroRandomInt(-2, 2)).toString();
                 }
@@ -351,10 +402,10 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
             }
             
             if (wrongAnswer !== undefined && 
-                !wrongAnswers.includes(wrongAnswer) && 
-                wrongAnswer !== correctResult && 
+                !wrongAnswers.includes(this.wrapWithLatex(wrongAnswer)) && 
+                this.wrapWithLatex(wrongAnswer) !== this.wrapWithLatex(correctResult) && 
                 !wrongAnswer.includes('NaN')) {
-                wrongAnswers.push(wrongAnswer);
+                wrongAnswers.push(this.wrapWithLatex(wrongAnswer));
             }
         }
         
@@ -445,5 +496,9 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         // 从结果中提取运算符
         const operators = result.match(/[+\-×÷]/g) || ['+', '+'];
         return operators;
+    }
+
+    private wrapWithLatex(latex: string): string {
+        return `\\(${latex}\\)`;
     }
 } 
