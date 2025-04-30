@@ -104,24 +104,40 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         return `\\(${content}\\)`;
     }
 
-    // 生成真分数
+    // 生成真分数（确保已约分）
     private generateProperFraction(minDenominator: number, maxDenominator: number): Fraction {
-        const denominator = getNonZeroRandomInt(minDenominator, maxDenominator);
-        const numerator = getNonZeroRandomInt(1, denominator - 1);
-        return { numerator, denominator };
+        // 循环直到找到一个已约分的分数
+        while (true) {
+            const denominator = getNonZeroRandomInt(minDenominator, maxDenominator);
+            const numerator = getNonZeroRandomInt(1, denominator - 1);
+            
+            // 检查是否已约分（gcd = 1 表示已约分）
+            if (this.gcd(numerator, denominator) === 1) {
+                return { numerator, denominator };
+            }
+        }
     }
 
-    // 生成假分数
+    // 生成假分数（确保已约分）
     private generateImproperFraction(minDenominator: number, maxDenominator: number): Fraction {
-        const denominator = getNonZeroRandomInt(minDenominator, maxDenominator);
-        const numerator = getNonZeroRandomInt(denominator, denominator * 2);
-        return { numerator, denominator };
+        // 循环直到找到一个已约分的分数
+        while (true) {
+            const denominator = getNonZeroRandomInt(minDenominator, maxDenominator);
+            const numerator = getNonZeroRandomInt(denominator, denominator * 2);
+            
+            // 检查是否已约分
+            if (this.gcd(numerator, denominator) === 1) {
+                return { numerator, denominator };
+            }
+        }
     }
 
-    // 生成带分数
+    // 生成带分数（确保分数部分已约分）
     private generateMixedNumber(minWhole: number, maxWhole: number, 
                               minDenominator: number, maxDenominator: number): Fraction {
         const whole = getNonZeroRandomInt(minWhole, maxWhole);
+        
+        // 生成已约分的真分数部分
         const fraction = this.generateProperFraction(minDenominator, maxDenominator);
         
         // 将带分数转换为假分数
@@ -132,6 +148,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
     }
 
     // 工具方法：格式化分数
+    // 注意：此方法已不再使用，请优先使用formatFractionAsImproper以确保所有分数显示为假分数形式
     private formatFraction(fraction: Fraction): string {
         const { numerator, denominator } = fraction;
         
@@ -143,21 +160,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
             return `${simplifiedNum}`;
         }
         
-        // 如果是假分数，转换为带分数
-        if (simplifiedNum > simplifiedDen) {
-            const wholePart = Math.floor(simplifiedNum / simplifiedDen);
-            const remainder = simplifiedNum % simplifiedDen;
-            
-            // 如果余数为0，直接返回整数部分
-            if (remainder === 0) {
-                return `${wholePart}`;
-            }
-            
-            // 否则返回带分数
-            return `${wholePart}\\frac{${remainder}}{${simplifiedDen}}`;
-        }
-        
-        // 真分数直接返回
+        // 始终返回假分数形式，不转换为带分数
         return `\\frac{${simplifiedNum}}{${simplifiedDen}}`;
     }
     
@@ -205,9 +208,18 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         const den1 = baseDenominator;
         const den2 = baseDenominator * multiplier;
         
-        // 生成分子（确保小于分母）
-        const num1 = getNonZeroRandomInt(1, den1 - 1);
-        const num2 = getNonZeroRandomInt(1, den2 - 1);
+        // 生成分子（确保小于分母并且互质）
+        let num1, num2;
+        
+        // 循环直到找到与den1互质的num1
+        do {
+            num1 = getNonZeroRandomInt(1, den1 - 1);
+        } while (this.gcd(num1, den1) !== 1);
+        
+        // 循环直到找到与den2互质的num2
+        do {
+            num2 = getNonZeroRandomInt(1, den2 - 1);
+        } while (this.gcd(num2, den2) !== 1);
         
         // 随机决定是加法还是减法
         const isAddition = Math.random() < 0.5;
@@ -255,7 +267,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         }
         
         // 格式化答案
-        const formattedAnswer = this.formatFraction(answer);
+        const formattedAnswer = this.formatFractionAsImproper(answer);
         
         return {
             expression,
@@ -270,7 +282,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         const minDenominator = this.CONSTANTS.LEVEL2_DENOMINATORS_RANGE[0];
         const maxDenominator = this.CONSTANTS.LEVEL2_DENOMINATORS_RANGE[1];
         
-        // 生成两个真分数
+        // 生成两个真分数（确保已约分）
         let fraction1 = this.generateProperFraction(minDenominator, maxDenominator);
         let fraction2 = this.generateProperFraction(minDenominator, maxDenominator);
         
@@ -309,7 +321,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         }
         
         // 格式化答案
-        const formattedAnswer = this.formatFraction(answer);
+        const formattedAnswer = this.formatFractionAsImproper(answer);
         
         return {
             expression,
@@ -360,7 +372,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         }
         
         // 格式化答案
-        const formattedAnswer = this.formatFraction(result);
+        const formattedAnswer = this.formatFractionAsImproper(result);
         
         return {
             expression,
@@ -413,7 +425,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         }
         
         // 格式化答案
-        const formattedAnswer = this.formatFraction(result);
+        const formattedAnswer = this.formatFractionAsImproper(result);
         
         return {
             expression,
@@ -428,16 +440,24 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         const minVal = 1;
         const maxVal = this.CONSTANTS.LEVEL5_FRACTION_RANGE[1];
         
-        // 生成两个分数（可以是真分数或假分数）
-        const fraction1: Fraction = {
-            numerator: getNonZeroRandomInt(minVal, maxVal),
-            denominator: getNonZeroRandomInt(minVal + 1, maxVal)
-        };
+        // 生成两个分数（确保已约分）
+        let fraction1: Fraction, fraction2: Fraction;
         
-        const fraction2: Fraction = {
-            numerator: getNonZeroRandomInt(minVal, maxVal),
-            denominator: getNonZeroRandomInt(minVal + 1, maxVal)
-        };
+        // 循环生成已约分的fraction1
+        do {
+            fraction1 = {
+                numerator: getNonZeroRandomInt(minVal, maxVal),
+                denominator: getNonZeroRandomInt(minVal + 1, maxVal)
+            };
+        } while (this.gcd(fraction1.numerator, fraction1.denominator) !== 1);
+        
+        // 循环生成已约分的fraction2
+        do {
+            fraction2 = {
+                numerator: getNonZeroRandomInt(minVal, maxVal),
+                denominator: getNonZeroRandomInt(minVal + 1, maxVal)
+            };
+        } while (this.gcd(fraction2.numerator, fraction2.denominator) !== 1);
         
         // 创建表达式
         const expression = `\\frac{${fraction1.numerator}}{${fraction1.denominator}} \\times \\frac{${fraction2.numerator}}{${fraction2.denominator}}`;
@@ -449,7 +469,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         };
         
         // 格式化答案
-        const formattedAnswer = this.formatFraction(answer);
+        const formattedAnswer = this.formatFractionAsImproper(answer);
         
         return {
             expression,
@@ -464,12 +484,16 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         const minVal = 1;
         const maxVal = this.CONSTANTS.LEVEL6_FRACTION_RANGE[1];
         
-        // 生成一个分数和两个带分数（用于构建除法表达式）
-        const fraction: Fraction = {
-            numerator: getNonZeroRandomInt(minVal, maxVal),
-            denominator: getNonZeroRandomInt(minVal + 1, maxVal)
-        };
+        // 生成一个分数（确保已约分）
+        let fraction: Fraction;
+        do {
+            fraction = {
+                numerator: getNonZeroRandomInt(minVal, maxVal),
+                denominator: getNonZeroRandomInt(minVal + 1, maxVal)
+            };
+        } while (this.gcd(fraction.numerator, fraction.denominator) !== 1);
         
+        // 生成两个带分数（已约分）
         const mixedNum1 = this.generateMixedNumber(1, 3, 2, 15);
         const mixedNum2 = this.generateMixedNumber(1, 3, 2, 15);
         
@@ -489,7 +513,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         const answer = this.divideFractions(fraction, sumResult);
         
         // 格式化答案
-        const formattedAnswer = this.formatFraction(answer);
+        const formattedAnswer = this.formatFractionAsImproper(answer);
         
         return {
             expression,
@@ -525,7 +549,7 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         const answer = this.addFractions(mixed1, mulResult);
         
         // 格式化答案
-        const formattedAnswer = this.formatFraction(answer);
+        const formattedAnswer = this.formatFractionAsImproper(answer);
         
         return {
             expression,
@@ -536,18 +560,14 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
     
     // 分数加法
     private addFractions(a: Fraction, b: Fraction): Fraction {
-        // 首先求最小公倍数
-        const lcmValue = this.lcm(a.denominator, b.denominator);
+        // 通分: 分母相乘，分子交叉乘以对方的分母后相加
+        const numerator = a.numerator * b.denominator + b.numerator * a.denominator;
+        const denominator = a.denominator * b.denominator;
         
-        // 通分
-        const newNumA = a.numerator * (lcmValue / a.denominator);
-        const newNumB = b.numerator * (lcmValue / b.denominator);
+        // 对结果进行约分
+        const [simplifiedNum, simplifiedDen] = this.simplifyFraction(numerator, denominator);
         
-        // 相加
-        const sumNumerator = newNumA + newNumB;
-        
-        // 返回结果（不约分，由调用者决定是否需要约分）
-        return { numerator: sumNumerator, denominator: lcmValue };
+        return { numerator: simplifiedNum, denominator: simplifiedDen };
     }
     
     // 分数减法
@@ -562,8 +582,10 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         // 相减
         const diffNumerator = newNumA - newNumB;
         
-        // 返回结果（不约分，由调用者决定是否需要约分）
-        return { numerator: diffNumerator, denominator: lcmValue };
+        // 对结果进行约分
+        const [simplifiedNum, simplifiedDen] = this.simplifyFraction(diffNumerator, lcmValue);
+        
+        return { numerator: simplifiedNum, denominator: simplifiedDen };
     }
     
     // 分数乘法
@@ -572,8 +594,10 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         const numerator = a.numerator * b.numerator;
         const denominator = a.denominator * b.denominator;
         
-        // 返回结果（不约分，由调用者决定是否需要约分）
-        return { numerator, denominator };
+        // 对结果进行约分
+        const [simplifiedNum, simplifiedDen] = this.simplifyFraction(numerator, denominator);
+        
+        return { numerator: simplifiedNum, denominator: simplifiedDen };
     }
     
     // 分数除法
@@ -582,8 +606,10 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         const numerator = a.numerator * b.denominator;
         const denominator = a.denominator * b.numerator;
         
-        // 返回结果（不约分，由调用者决定是否需要约分）
-        return { numerator, denominator };
+        // 对结果进行约分
+        const [simplifiedNum, simplifiedDen] = this.simplifyFraction(numerator, denominator);
+        
+        return { numerator: simplifiedNum, denominator: simplifiedDen };
     }
     
     // 生成错误答案
@@ -594,10 +620,10 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         while (wrongAnswers.length < 3) {
             // 使用不同策略生成错误答案
             const wrongAnswer = this.generateSingleWrongAnswer(correctAnswer);
-            const formattedWrong = this.formatFraction(wrongAnswer);
+            const formattedWrong = this.formatFractionAsImproper(wrongAnswer);
             
             // 确保错误答案与正确答案不同，且不与已有的错误答案重复
-            const correctFormatted = this.formatFraction(correctAnswer);
+            const correctFormatted = this.formatFractionAsImproper(correctAnswer);
             if (formattedWrong !== correctFormatted && !wrongAnswers.includes(formattedWrong)) {
                 wrongAnswers.push(formattedWrong);
             }
@@ -683,14 +709,8 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
             explanation += this.generateMixedOperationExplanation(expression, answer);
         }
         
-        // 添加最终答案（使用假分数格式）
-        // 先检查formattedAnswer是否为带分数，如果是则转换为假分数
-        let finalAnswer = formattedAnswer;
-        if (formattedAnswer.includes('\\frac') && formattedAnswer.match(/^\d+\\frac/)) {
-            finalAnswer = this.formatFractionAsImproper(answer);
-        }
-        
-        explanation += `\n\n因此，\n\\[${expression} = ${finalAnswer}\\]`;
+        // 添加最终答案（总是使用假分数格式）
+        explanation += `\n\n因此，\n\\[${expression} = ${this.formatFractionAsImproper(answer)}\\]`;
         
         return explanation;
     }
