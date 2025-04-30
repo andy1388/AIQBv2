@@ -187,20 +187,23 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         return result;
     }
     
-    // 难度1：分数加减（需通分）
+    // 难度1：分数加减（需通分，一个分母是另一个的倍数）
     private generateLevel1(): FractionOperation {
-        // 使用固定分母组合
-        const denominatorList = this.CONSTANTS.LEVEL1_DENOMINATORS;
+        // 为了简化通分过程，使一个分母是另一个分母的倍数
+        const basedenominators = [2, 3, 4, 5, 6];
+        const multipliers = [2, 3, 4];
         
-        // 随机选择两个不同的分母
-        let den1Index = getRandomInt(0, denominatorList.length - 1);
-        let den2Index;
-        do {
-            den2Index = getRandomInt(0, denominatorList.length - 1);
-        } while (den1Index === den2Index);
+        // 随机选择基础分母
+        const baseIndex = getRandomInt(0, basedenominators.length - 1);
+        const baseDenominator = basedenominators[baseIndex];
         
-        const den1 = denominatorList[den1Index];
-        const den2 = denominatorList[den2Index];
+        // 随机选择倍数
+        const multiplierIndex = getRandomInt(0, multipliers.length - 1);
+        const multiplier = multipliers[multiplierIndex];
+        
+        // 计算两个分母，确保一个是另一个的倍数
+        const den1 = baseDenominator;
+        const den2 = baseDenominator * multiplier;
         
         // 生成分子（确保小于分母）
         const num1 = getNonZeroRandomInt(1, den1 - 1);
@@ -213,14 +216,18 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         let fraction1: Fraction = { numerator: num1, denominator: den1 };
         let fraction2: Fraction = { numerator: num2, denominator: den2 };
         
+        // 对于减法，检查转换为同分母后的值，确保结果为正
         if (!isAddition) {
-            // 计算两个分数的值以确保结果为正
-            const value1 = num1 / den1;
-            const value2 = num2 / den2;
+            // 转换为同分母后比较大小
+            const newNum1 = num1 * multiplier; // 分子1的新值（通分后）
+            const newNum2 = num2;             // 分子2的值（已经以大分母表示）
             
-            // 如果第一个分数小于第二个，交换它们
-            if (value1 < value2) {
-                [fraction1, fraction2] = [fraction2, fraction1];
+            // 如果减法会得到负数，交换两个分数
+            if (newNum1 < newNum2) {
+                [fraction1, fraction2] = [
+                    { numerator: num2, denominator: den2 },
+                    { numerator: num1, denominator: den1 }
+                ];
             }
         }
         
@@ -231,10 +238,14 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
         // 计算答案
         let answer: Fraction;
         
-        // 首先通分
-        const lcmValue = this.lcm(fraction1.denominator, fraction2.denominator);
-        const newNum1 = fraction1.numerator * (lcmValue / fraction1.denominator);
-        const newNum2 = fraction2.numerator * (lcmValue / fraction2.denominator);
+        // 通分 - 使用较大的分母作为公分母
+        const lcmValue = Math.max(fraction1.denominator, fraction2.denominator);
+        
+        // 转换分子
+        const factor1 = lcmValue / fraction1.denominator;
+        const factor2 = lcmValue / fraction2.denominator;
+        const newNum1 = fraction1.numerator * factor1;
+        const newNum2 = fraction2.numerator * factor2;
         
         // 然后进行加减运算
         if (isAddition) {
@@ -672,40 +683,103 @@ export default class F1L0_1_3_Q1_F_MQ extends QuestionGenerator {
             explanation += this.generateMixedOperationExplanation(expression, answer);
         }
         
-        // 添加最终答案
-        explanation += `\n\n因此，\n\\[${expression} = ${formattedAnswer}\\]`;
+        // 添加最终答案（使用假分数格式）
+        // 先检查formattedAnswer是否为带分数，如果是则转换为假分数
+        let finalAnswer = formattedAnswer;
+        if (formattedAnswer.includes('\\frac') && formattedAnswer.match(/^\d+\\frac/)) {
+            finalAnswer = this.formatFractionAsImproper(answer);
+        }
+        
+        explanation += `\n\n因此，\n\\[${expression} = ${finalAnswer}\\]`;
         
         return explanation;
     }
     
     // 生成加减法解释
     private generateAddSubtractExplanation(expression: string, answer: Fraction): string {
-        // 简化版解释
-        return `1) 先通分，找出分母的最小公倍數\n\\[${expression}\\]\n\n2) 分子進行加減運算\n\n3) 約分结果\n\\[= ${this.formatFraction(answer)}\\]`;
+        // 解析表达式，提取分数和运算符
+        const isAddition = expression.includes('+');
+        const operator = isAddition ? '+' : '-';
+        
+        // 正则表达式提取分数部分
+        const fractionRegex = /\\frac\{(\d+)\}\{(\d+)\}/g;
+        const matches = [...expression.matchAll(fractionRegex)];
+        
+        if (matches.length < 2) {
+            return `1) 先通分，找出分母的最小公倍數\n\\[${expression}\\]\n\n2) 分子進行加減運算\n\n3) 約分结果\n\\[= ${this.formatFractionAsImproper(answer)}\\]`;
+        }
+        
+        // 提取分数的分子和分母
+        const num1 = parseInt(matches[0][1]);
+        const den1 = parseInt(matches[0][2]);
+        const num2 = parseInt(matches[1][1]);
+        const den2 = parseInt(matches[1][2]);
+        
+        // 计算最小公倍数
+        const lcm = this.lcm(den1, den2);
+        
+        // 计算通分后的分数
+        const factor1 = lcm / den1;
+        const factor2 = lcm / den2;
+        const newNum1 = num1 * factor1;
+        const newNum2 = num2 * factor2;
+        
+        // 计算结果
+        const resultNum = isAddition ? newNum1 + newNum2 : newNum1 - newNum2;
+        
+        // 约分结果
+        const [simplifiedNum, simplifiedDen] = this.simplifyFraction(resultNum, lcm);
+        
+        // 构建详细的解释
+        return `1) 先通分，找出分母的最小公倍數\n\\[${expression}\\]\n\n` +
+               `分母 ${den1} 和 ${den2} 的最小公倍數是 ${lcm}\n\n` +
+               `2) 將分數轉換為同分母的形式\n` +
+               `\\[\\frac{${num1}}{${den1}} = \\frac{${num1} \\times ${factor1}}{${den1} \\times ${factor1}} = \\frac{${newNum1}}{${lcm}}\\]\n` +
+               `\\[\\frac{${num2}}{${den2}} = \\frac{${num2} \\times ${factor2}}{${den2} \\times ${factor2}} = \\frac{${newNum2}}{${lcm}}\\]\n\n` +
+               `3) 分子進行${isAddition ? '加' : '減'}法運算\n` +
+               `\\[\\frac{${newNum1}}{${lcm}} ${operator} \\frac{${newNum2}}{${lcm}} = \\frac{${newNum1} ${operator} ${newNum2}}{${lcm}} = \\frac{${resultNum}}{${lcm}}\\]\n\n` +
+               `4) 約分結果\n` +
+               `\\[= \\frac{${simplifiedNum}}{${simplifiedDen}}\\]`;
     }
     
     // 生成整数与分数混合运算解释
     private generateMixedWithIntegerExplanation(expression: string, answer: Fraction): string {
-        return `1) 將整數轉換為分數\n\\[${expression}\\]\n\n2) 按照運算順序進行計算\n\n3) 約分結果\n\\[= ${this.formatFraction(answer)}\\]`;
+        return `1) 將整數轉換為分數\n\\[${expression}\\]\n\n2) 按照運算順序進行計算\n\n3) 約分結果\n\\[= ${this.formatFractionAsImproper(answer)}\\]`;
     }
     
     // 生成带分数运算解释
     private generateMixedNumberExplanation(expression: string, answer: Fraction): string {
-        return `1) 將帶分數轉換為假分數\n\\[${expression}\\]\n\n2) 按照運算順序進行計算\n\n3) 約分并轉換回帶分數\n\\[= ${this.formatFraction(answer)}\\]`;
+        return `1) 將帶分數轉換為假分數\n\\[${expression}\\]\n\n2) 按照運算順序進行計算\n\n3) 約分結果\n\\[= ${this.formatFractionAsImproper(answer)}\\]`;
     }
     
     // 生成乘法解释
     private generateMultiplicationExplanation(expression: string, answer: Fraction): string {
-        return `1) 分子相乘\n\\[${expression}\\]\n\n2) 分母相乘\n\n3) 約分結果\n\\[= ${this.formatFraction(answer)}\\]`;
+        return `1) 分子相乘\n\\[${expression}\\]\n\n2) 分母相乘\n\n3) 約分結果\n\\[= ${this.formatFractionAsImproper(answer)}\\]`;
     }
     
     // 生成除法解释
     private generateDivisionExplanation(expression: string, answer: Fraction): string {
-        return `1) 先計算括號內的加法\n\\[${expression}\\]\n\n2) 除法轉換為乘以倒數\n\n3) 約分結果\n\\[= ${this.formatFraction(answer)}\\]`;
+        return `1) 先計算括號內的加法\n\\[${expression}\\]\n\n2) 除法轉換為乘以倒數\n\n3) 約分結果\n\\[= ${this.formatFractionAsImproper(answer)}\\]`;
     }
     
     // 生成混合运算解释
     private generateMixedOperationExplanation(expression: string, answer: Fraction): string {
-        return `1) 將帶分數轉換為假分數\n\\[${expression}\\]\n\n2) 先進行乘法運算\n\n3) 再進行加法運算\n\n4) 約分并轉換回帶分數\n\\[= ${this.formatFraction(answer)}\\]`;
+        return `1) 將帶分數轉換為假分數\n\\[${expression}\\]\n\n2) 先進行乘法運算\n\n3) 再進行加法運算\n\n4) 約分結果\n\\[= ${this.formatFractionAsImproper(answer)}\\]`;
+    }
+    
+    // 工具方法：始终以假分数格式化分数（不转为带分数）
+    private formatFractionAsImproper(fraction: Fraction): string {
+        const { numerator, denominator } = fraction;
+        
+        // 首先约分
+        const [simplifiedNum, simplifiedDen] = this.simplifyFraction(numerator, denominator);
+        
+        // 如果分母为1，直接返回整数
+        if (simplifiedDen === 1) {
+            return `${simplifiedNum}`;
+        }
+        
+        // 始终返回分数形式，不转换为带分数
+        return `\\frac{${simplifiedNum}}{${simplifiedDen}}`;
     }
 } 
