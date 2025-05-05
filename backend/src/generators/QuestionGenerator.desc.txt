@@ -1,5 +1,8 @@
-Generator ID: QuestionGenerator
-Description: 问题生成器基类
+生成器名称
+Name of the generator
+===================================
+
+Level number：integer
 
 功能概述：
 这是所有问题生成器的抽象基类，提供了以下核心功能：
