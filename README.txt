@@ -87,6 +87,7 @@ cd backend
 npm run generateIndex
 
 // local host
+cd AIQB
 cd backend
 npm install
 npm run dev
